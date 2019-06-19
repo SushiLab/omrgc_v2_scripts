@@ -5,7 +5,7 @@ old_versions*
 # History files
 .Rhistory
 .Rapp.history
-.Rproj
+*.Rproj
 
 # Session Data files
 .RData
