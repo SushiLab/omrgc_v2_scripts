@@ -1,6 +1,11 @@
+# Misc
+data/*
+old_versions*
+
 # History files
 .Rhistory
 .Rapp.history
+.Rproj
 
 # Session Data files
 .RData
@@ -34,3 +39,4 @@ vignettes/*.pdf
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
+
