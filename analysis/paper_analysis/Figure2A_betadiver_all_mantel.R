@@ -1,10 +1,23 @@
+# OM-GRC v2 ==============================================================================
+# Code associated with the om-rgc v2 and tara prok metaT paper
+# Figure 2A: Beta diversity ==============================================================
+
+rm(list = ls())
+if (basename(getwd()) != 'analysis'){
+  setwd('analysis')
+}
+
+# Libraries ------------------------------------------------------------------------------
+
 library(tidyverse)
 library(data.table)
 library(patchwork)
-source("../data/lib/sushipal.R")
-source("../data/lib/varpart.sqr.euc_functions.R")
+source("lib/sushipal.R")
+source("lib/varpart.sqr.euc_functions.R")
 palette(sushi.palette(alpha=0.7)[c(2,3,4,1,14)])
 library(vegan)
+
+# Load data ------------------------------------------------------------------------------
 
 # Load environmental data
 env.mat<-fread("zcat < ../data/processed/NOG_env.mat.match.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)

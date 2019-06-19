@@ -7,6 +7,10 @@ if (basename(getwd()) != 'analysis'){
   setwd('analysis')
 }
 
+# FIXME
+# This is a copy of the figure 4 script, remove the parts not needed
+#
+
 # Libraries ------------------------------------------------------------------------------
 
 library(geosphere)
@@ -53,9 +57,7 @@ env.mat.match<-env.mat.match[match(rownames(metaG.norm.match),env.mat.match$Barc
 # Variance partitioning: Sample bins through temperature (each layers) -------------------
 
 # EPI
-res.epi<-varpart.sqr.euc.all(metaT.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],
-                             metaG.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],
-                             ratio.mat[env.mat.match$Layer %in% c("SRF","DCM"),])
+res.epi<-varpart.sqr.euc.all(metaT.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],metaG.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],ratio.mat[env.mat.match$Layer %in% c("SRF","DCM"),])
 res.epi.comp.norm<-res.epi$components %>% gather("Component","value",-sample1,-sample2)
 res.epi.comp.norm$Layer<-"EPI"
 
