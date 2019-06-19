@@ -1,0 +1,25 @@
+Reductive pentose phosphate cycle (Calvin cycle)	CARBON FIXATION
+Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)	CARBON FIXATION
+Reductive citrate cycle (Arnon-Buchanan cycle)	CARBON FIXATION
+3-Hydroxypropionate bi-cycle	CARBON FIXATION
+Phosphate acetyltransferase-acetate kinase pathway, acetyl-CoA => acetate	CARBON FIXATION
+Incomplete reductive citrate cycle, acetyl-CoA => oxoglutarate	CARBON FIXATION
+Photosystem I	PHOTOSYNTHESIS
+Photosystem II	PHOTOSYNTHESIS
+Sulfonate transport system	TRANSPORT SYSTEMS
+Nitrate/nitrite transport system	TRANSPORT SYSTEMS
+Sulfate transport system	TRANSPORT SYSTEMS
+Sulfonate transport system	TRANSPORT SYSTEMS
+Dissimilatory sulfate reduction, sulfate => H2S	SULFUR
+Nitrification, ammonia => nitrite	NITROGEN
+Nitrate assimilation	NITROGEN
+Nitrogen fixation, nitrogen => ammonia	NITROGEN
+Assimilatory nitrate reduction, nitrate => ammonia	NITROGEN
+Dissimilatory nitrate reduction, nitrate => ammonia	NITROGEN
+Denitrification, nitrate => nitrogen	NITROGEN
+Complete nitrification, comammox, ammonia => nitrite => nitrate	NITROGEN
+Methanogenesis, methanol => methane	METHANE
+Methanogenesis, methylamine/dimethylamine/trimethylamine => methane	METHANE
+Methanogenesis, acetate => methane	METHANE
+Methanogenesis, CO2 => methane	METHANE
+Methane oxidation, methanotroph, methane => formaldehyde	METHANE

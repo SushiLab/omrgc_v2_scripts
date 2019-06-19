@@ -1,0 +1,97 @@
+map00010	Carbohydrate metabolism
+map00020	Carbohydrate metabolism
+map00030	Carbohydrate metabolism
+map00040	Carbohydrate metabolism
+map00051	Carbohydrate metabolism
+map00052	Carbohydrate metabolism
+map00053	Carbohydrate metabolism
+map00500	Carbohydrate metabolism
+map00520	Carbohydrate metabolism
+map00620	Carbohydrate metabolism
+map00630	Carbohydrate metabolism
+map00640	Carbohydrate metabolism
+map00650	Carbohydrate metabolism
+map00660	Carbohydrate metabolism
+map00562	Carbohydrate metabolism
+map00190	Energy metabolism
+map00195	Energy metabolism
+map00196	Energy metabolism
+map00710	Energy metabolism
+map00720	Energy metabolism
+map00680	Energy metabolism
+map00910	Energy metabolism
+map00920	Energy metabolism
+map00061	Lipid metabolism
+map00062	Lipid metabolism
+map00071	Lipid metabolism
+map00072	Lipid metabolism
+map00073	Lipid metabolism
+map00100	Lipid metabolism
+map00120	Lipid metabolism
+map00121	Lipid metabolism
+map00140	Lipid metabolism
+map00561	Lipid metabolism
+map00564	Lipid metabolism
+map00565	Lipid metabolism
+map00600	Lipid metabolism
+map00590	Lipid metabolism
+map00591	Lipid metabolism
+map00592	Lipid metabolism
+map01040	Lipid metabolism
+map00230	Nucleotide metabolism
+map00240	Nucleotide metabolism
+map00250	Amino acid metabolism
+map00260	Amino acid metabolism
+map00270	Amino acid metabolism
+map00280	Amino acid metabolism
+map00290	Amino acid metabolism
+map00300	Amino acid metabolism
+map00310	Amino acid metabolism
+map00220	Amino acid metabolism
+map00330	Amino acid metabolism
+map00340	Amino acid metabolism
+map00350	Amino acid metabolism
+map00360	Amino acid metabolism
+map00380	Amino acid metabolism
+map00400	Amino acid metabolism
+map00410	Amino acid metabolism
+map00430	Amino acid metabolism
+map00440	Amino acid metabolism
+map00450	Amino acid metabolism
+map00460	Amino acid metabolism
+map00471	Amino acid metabolism
+map00472	Amino acid metabolism
+map00473	Amino acid metabolism
+map00480	Amino acid metabolism
+map03020	Genetic information processing
+map03022	Genetic information processing
+map03040	Genetic information processing
+map03010	Genetic information processing
+map00970	Genetic information processing
+map03013	Genetic information processing
+map03015	Genetic information processing
+map03008	Genetic information processing
+map03060	Genetic information processing
+map04141	Genetic information processing
+map04130	Genetic information processing
+map04120	Genetic information processing
+map04122	Genetic information processing
+map03050	Genetic information processing
+map03018	Genetic information processing
+map03030	Genetic information processing
+map03410	Genetic information processing
+map03420	Genetic information processing
+map03430	Genetic information processing
+map03440	Genetic information processing
+map03450	Genetic information processing
+map02024	Cellular Processes
+map04144	Cellular Processes
+map04145	Cellular Processes
+map04142	Cellular Processes
+map04146	Cellular Processes
+map02030	Cellular Processes
+map02040	Cellular Processes
+map02010	Environmental Information Processing
+map02060	Environmental Information Processing
+map03070	Environmental Information Processing
+map02020	Environmental Information Processing

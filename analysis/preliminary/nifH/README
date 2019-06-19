@@ -1,0 +1,20 @@
+# Get full length nifH database from jzehr lab
+wget https://wwwzehr.pmc.ucsc.edu/Genome879/genome879.fasta
+wget https://wwwzehr.pmc.ucsc.edu/Genome879/genome879.xlsx
+
+# Get nifH genes' info from the catalog
+zgrep "K02588" /nfs/cds/share/OceanMicrobiome_v2/OM-RGC_v2.tsv.gz > nifH_catalog.tab
+
+# Create a fasta file with nifH genes
+awk -F "\t" '{print ">"$2"\n"$14}' nifH_catalog.tab > nifH.fna
+
+# Blast sequences
+makeblastdb -in genome879.fasta -dbtype prot
+blastx -query nifH.fna -db genome879.fasta -outfmt "6 std qlen" -max_target_seqs 1 -out nifH.tsv
+
+# Get the MGs
+zgrep -e "K06942" -e "K01889" -e "K01887" -e "K01875" -e "K01883" -e "K01869" -e "K01873" -e "K01409" -e "K03106" -e "K03110" /nfs/cds/share/OceanMicrobiome_v2/OM-RGC_v2.tsv.gz > MGs.tab
+
+# Get marker genes' info from the catalog
+zgrep -e "K09709" -e "K14470" -e "K14471" -e "K14472" -e "K15039" -e "K14468" -e "K15017" -e "K15020" -e "K14469" -e "K15019" -e "K15018" -e "K01672" -e "K01673" -e "K01674" -e "K18245" -e "K18246" -e "K00855" -e "K01601" -e "K01602" -e "K14534" -e "K03518" -e "K03519" -e "K03520" -e "K14138" -e "K01895" -e "K17877" -e "K00366" -e "K10534" -e "K15877" -e "K00368" -e "K15864" -e "K00376" -e "K04561" -e "K00367" -e "K00360" -e "K00372" -e "K02567" -e "K03385" -e "K10944" -e "K10535" -e "K15905" -e "K15906" -e "K02586" -e "K02588" -e "K02591" -e "K08929" -e "K08940" -e "K08946" -e "K08944" -e "K08930" -e "K05376" -e "K02689" -e "K02097" -e "K02092" -e "K08918" -e "K08907" -e "K08912" -e "K05383" -e "K02703" -e "K02284" -e "K02636" -e "K02641" -e "K02628" -e "K02638" -e "K00956" -e "K00957" -e "K00958" -e "K00390" -e "K00860" -e "K01738" -e "K12339" -e "K10150" -e "K00394" -e "K00395" -e "K05301" -e "K00387" -e "K00380" -e "K00381" -e "K00392" /nfs/cds/share/OceanMicrobiome_v2/OM-RGC_v2.tsv.gz > marker_KOs_catalog.tab
+

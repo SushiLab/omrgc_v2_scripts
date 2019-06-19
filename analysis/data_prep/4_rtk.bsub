@@ -1,0 +1,12 @@
+#!/bin/bash 
+#BSUB -n 20                     # 24 cores 
+#BSUB -W 120:00                  # 8-hour run-time 
+#BSUB -J rtk_bsub                  # Name of the job
+#BSUB -oo out.%J_%I            # output file: out.jobname_index (useful for arrays)
+#BSUB -eo err.%J_%I            # error file: err.jobname_index (useful for arrays)
+#BSUB -R "rusage[mem=40000]"    # memory requested (MB) per core
+#BSUB -N                       # send mail when finished
+#BSUB -B                       # send mail when started
+#BSUB -u guillems@ethz.ch      # send mail to
+
+bash 4_rtk.sh

@@ -1,0 +1,13 @@
+Load environmental data
+Load metaG
+[1] TRUE
+Load metaT
+[1] TRUE
+Gather metaG
+Gather metaT
+Bind metaG and metaT
+Split metaG and metaT
+Normalize metaG and metaT
+Variance stabilization
+Re-normalize
+Save data
