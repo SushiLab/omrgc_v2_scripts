@@ -8,19 +8,19 @@ Folders and relevant subfolders of the repository:
 ```
 .
 ├── data*
-	├── raw
-	├── preliminary
-	├── release
+    ├── raw
+    ├── preliminary
+    ├── release
     └── processed
 ├── analysis
-	├── lib
-	├── data_prep
-	├── preliminary
+    ├── lib
+    ├── data_prep
+    ├── preliminary
     └── paper_scripts
 ├── results
-	├── tables
-	├── figures
-	├── paper_tables
+    ├── tables
+    ├── figures
+    ├── paper_tables
     └── paper_figures
 └── README.md 
  
