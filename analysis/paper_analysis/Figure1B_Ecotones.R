@@ -1,8 +1,21 @@
-library(DESeq2)
+# OM-GRC v2 ==============================================================================
+# Code associated with the om-rgc v2 and tara prok metaT paper
+# Figure 1: ecological differentiation ===================================================
+
+rm(list = ls())
+if (basename(getwd()) != 'analysis'){
+  setwd('analysis')
+}
+
+# Libraries ------------------------------------------------------------------------------
+
+library(DESeq2) # BiocManager::install("DESeq2")
 library(data.table)
-library(EcolUtils)
+library(EcolUtils) # devtools::install_github("GuillemSalazar/EcolUtils")
 library(ggplot2)
 library(tidyverse)
+
+# Functions ------------------------------------------------------------------------------
 
 logeucdist<-function(mat){
   mat<-mat/rowSums(mat)
@@ -11,15 +24,34 @@ logeucdist<-function(mat){
   dist(log10(mat+pseudocount))
 }
 
-# Load metaG
-metaG.norm<-fread("../data/processed/NOG_metaG.norm.txt",header=T,sep="\t",data.table = F)
+# Load data ------------------------------------------------------------------------------
+
+# meta g
+metaG.norm<-fread("zcat < ../data/processed/NOG_metaG.norm.txt.gz",header=T,sep="\t",data.table = F)
+env.mat.metaG<-fread("zcat < ../data/processed/NOG_env.mat.metaG.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+
+# meta t
+metaT.norm<-fread("zcat < ../data/processed/NOG_metaT.norm.txt.gz",header=T,sep="\t",data.table = F)
+env.mat.metaT<-fread("zcat < ../data/processed/NOG_env.mat.metaT.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+
+# ratios
+ratio.norm<-fread("zcat < ../data/processed/NOG_ratio.mat.txt.gz",header=T,sep="\t",data.table = F)
+env.mat.ratio<-fread("zcat < ../data/processed/NOG_env.mat.match.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+
+# taxo
+miTags<-fread("../data/processed/mitags.OTU.tab.rr.TARA180.noeuks.txt",sep="\t",header=T,data.table = F)
+
+# env data
+# redundant with env.mat.metag ?
+env.mat<-fread("zcat < ../data/processed/NOG_env.mat.metaG.txt.gz",sep="\t",header=T,data.table = F,stringsAsFactors = T)
+
+# Transform data --------------------------------------------------------------------------
+
+# meta g
 rownames(metaG.norm)<-metaG.norm$V1
 metaG.norm<-metaG.norm[,-1]
-env.mat.metaG<-fread("../data/processed/NOG_env.mat.metaG.txt",header=T,sep="\t",data.table = F,stringsAsFactors = T)
 rownames(env.mat.metaG)<-env.mat.metaG$V1
 env.mat.metaG<-env.mat.metaG[,-1]
-
-
 input.data.merged<-t(metaG.norm)
 colnames(input.data.merged)<-paste(colnames(input.data.merged),"_G",sep="")
 input.metadata.merged<-env.mat.metaG
@@ -33,15 +65,11 @@ input.data.norm<-res[,1:nrow(metaG.norm)]
 metaG.norm.log2<-t(input.data.norm)+log2((max(input.data.merged)/1e9))
 rownames(metaG.norm.log2)<-gsub("_G","",rownames(metaG.norm))
 
-# Load metaT
-metaT.norm<-fread("../data/processed/NOG_metaT.norm.txt",header=T,sep="\t",data.table = F)
+# meta t
 rownames(metaT.norm)<-metaT.norm$V1
 metaT.norm<-metaT.norm[,-1]
-env.mat.metaT<-fread("../data/processed/NOG_env.mat.metaT.txt",header=T,sep="\t",data.table = F,stringsAsFactors = T)
 rownames(env.mat.metaT)<-env.mat.metaT$V1
 env.mat.metaT<-env.mat.metaT[,-1]
-
-
 input.data.merged<-t(metaT.norm)
 colnames(input.data.merged)<-paste(colnames(input.data.merged),"_G",sep="")
 input.metadata.merged<-env.mat.metaT
@@ -55,28 +83,32 @@ input.data.norm<-res[,1:nrow(metaT.norm)]
 metaT.norm.log2<-t(input.data.norm)+log2((max(input.data.merged)/1e9))
 rownames(metaT.norm.log2)<-gsub("_G","",rownames(metaT.norm))
 
-# Load ratio
-ratio.norm<-fread("../data/processed/NOG_ratio.mat.txt",header=T,sep="\t",data.table = F)
+# ratios
 rownames(ratio.norm)<-ratio.norm$V1
 ratio.norm<-ratio.norm[,-1]
-env.mat.ratio<-fread("../data/processed/NOG_env.mat.match.txt",header=T,sep="\t",data.table = F,stringsAsFactors = T)
 rownames(env.mat.ratio)<-env.mat.ratio$V1
 env.mat.ratio<-env.mat.ratio[,-1]
 env.mat.ratio<-env.mat.ratio[match(rownames(ratio.norm),env.mat.ratio$Barcode),]
 
-# Load tax
-miTags<-fread("../data/processed/miTags/OTU.tab.rr.TARA180.noeuks.txt",sep="\t",header=T,data.table = F)
+# taxo
 rownames(miTags)<-miTags$V1
 miTags<-miTags[,-1]
 
 # Load environmental data
-env.mat<-fread("../data/processed/NOG_env.mat.metaG.txt",sep="\t",header=T,data.table = F,stringsAsFactors = T)
 env.mat$Layer<-factor(env.mat$Layer,levels = c("SRF","DCM","MES","other"))
-
 miTags<-miTags[match(gsub("-",".",env.mat$Sample_name),rownames(miTags)),]
 wTINA<-as.matrix(logeucdist(miTags))
 
+env.mat.metaG %>% filter(Layer %in% c("SRF","DCM") & Latitude<20 & Latitude>0) %>%
+  summarise(median(Temperature))
+env.mat.metaG %>% filter(Layer %in% c("SRF","DCM") & Latitude<40 & Latitude>20) %>%
+  summarise(median(Temperature))
+env.mat.metaG %>% filter(Layer %in% c("SRF","DCM") & Latitude<60 & Latitude>40) %>%
+  summarise(median(Temperature))
+env.mat.metaG %>% filter(Layer %in% c("SRF","DCM") & Latitude<80 & Latitude>60) %>%
+  summarise(median(Temperature))
 
+# Define window size for the sliding window analysis
 w.size<-10
 
 ## LATITUDE ##
@@ -121,6 +153,6 @@ ggplot(data=res,aes(x=env.var.mean,y=stat.real.zscore,col=data.source)) +
   coord_flip()
   
 
-ggsave(file="../results/Fig2A.pdf",width = 210,height = 140,units = "mm")
+ggsave(file="../results/figures/Fig2A.pdf",width = 210,height = 140,units = "mm")
 
 

@@ -1,5 +1,5 @@
 # OM-RGC v2
-This repository is associated with the OM-RGC v2 / Tara prok metaT paper. It contains the script for the analysisof the paper. 
+This repository is associated with the OM-RGC v2 / Tara prok metaT paper. It contains the script for the analyses of the paper. 
 
 ## Structure
 

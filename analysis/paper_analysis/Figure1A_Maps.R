@@ -1,19 +1,35 @@
+# OM-GRC v2 ==============================================================================
+# Code associated with the om-rgc v2 and tara prok metaT paper
+# Figure 1: Map ==========================================================================
+
+rm(list = ls())
+if (basename(getwd()) != 'analysis'){
+  setwd('analysis')
+}
+
+# Libraries ------------------------------------------------------------------------------
+
 library(rgdal)      # for spTransform() & project()
 library(ggplot2)    # for ggplot()
 library(ggrepel)    # for geom_text_repel() - repel overlapping text labels
 library(data.table)
 library(tidyverse)
 
-# __ give the PORJ.4 string for Eckert IV projection
+# Variables ------------------------------------------------------------------------------
 
-# TRY Winkel-Tripel !!!!!!!! (or hate Lucas)
-#PROJ <- "+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" 
+# Using the Winkel tripel projection
 PROJ <- "+proj=wintri +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" 
 
+# Load data ------------------------------------------------------------------------------
+
 # Load environmental table
-env.mat.metaG<-fread("../data/processed/NOG_env.mat.metaG.txt",header=T,sep="\t")
+env.mat.metaG<-fread("zcat < ../data/processed/NOG_env.mat.metaG.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+env.mat.metaT<-fread("zcat < ../data/processed/NOG_env.mat.metaT.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+env.mat.match<-fread("zcat < ../data/processed/NOG_env.mat.match.txt.gz",header=T,sep="\t",data.table = F,stringsAsFactors = T)
+
+# Transform data -------------------------------------------------------------------------
+
 env.mat.metaG$Station.label[env.mat.metaG$Station.label=="TARA_148b"]<-"TARA_148"
-env.mat.metaT<-fread("../data/processed/NOG_env.mat.metaT.txt",header=T,sep="\t")
 env.mat.metaT$Station.label[env.mat.metaT$Station.label=="TARA_148b"]<-"TARA_148"
 env.mat<-rbind(env.mat.metaG,env.mat.metaT)
 env.mat<-env.mat[match(unique(env.mat$Station.label),env.mat$Station.label),]
@@ -86,21 +102,21 @@ ggplot() +
                colour = "black", fill = "transparent", size = .25) +
   geom_point(data = env.mat.red, aes(x = Lon.proj, y = Lat.proj),colour="black",alpha = .5,size=3,pch=19) +
   geom_label_repel(data = env.mat.red, 
-                  aes(x = Lon.proj, y = Lat.proj, label = sub("TARA_","",Station.label),fill=sequenced),
-                  size = 5,
-                  segment.colour = "black",
-                  segment.alpha = .8,
-                  segment.size = .45,
-                  force = 1,
-                  max.iter = 10e3,
-                  show.legend = TRUE) +
+                   aes(x = Lon.proj, y = Lat.proj, label = sub("TARA_","",Station.label),fill=sequenced),
+                   size = 5,
+                   segment.colour = "black",
+                   segment.alpha = .8,
+                   segment.size = .45,
+                   force = 1,
+                   max.iter = 10e3,
+                   show.legend = TRUE) +
   geom_path(data = NE_graticules.prj, 
             aes(long, lat, group = group), 
             linetype = "dotted", colour = "grey50", size = .25) +
   coord_fixed(ratio = 1) +
   theme_void() + #+ # remove the default background, gridlines & default gray color around legend's symbols
   scale_fill_manual(values=c("#c6e9af","#ed9406","#33ccff"))
-ggsave("../results/Fig1AI.pdf", width=40, height=20, units="cm")
+ggsave("../results/figures/Figure_Map.pdf", width=40, height=20, units="cm")
 
 ## POLAR MAP ##
 world<-map_data("world") 
@@ -115,22 +131,18 @@ p<-ggplot(data=world,aes(x=long,y=lat,group=group)) +
   geom_vline(xintercept=seq(-90,90, by=20),colour = "grey50", size = .25,alpha=0.5,linetype = "dotted") +
   coord_map("harrison",parameters=c(3,0)) +
   theme_void()
-ggsave("../results/Fig1AII.pdf",width=15, height=7.5, units="cm")
+ggsave("../results/figures/Figure_Polar_map.pdf",width=15, height=7.5, units="cm")
 
 
 # Table of stations
-table(sequenced)
+numbers = as_tibble(table(sequenced))  %>%
+  dplyr::rename(stations = n)
 
 # Table of samples
+numbers$samples = c(
+  nrow(env.mat.match), # Both
+  nrow(env.mat.metaG)-length(which(env.mat.metaG$Barcode %in% sapply(strsplit(as.character(env.mat.match$Barcode),"-"),"[[",1))), # metaG
+  nrow(env.mat.metaT)-length(which(env.mat.metaT$Barcode %in% sapply(strsplit(as.character(env.mat.match$Barcode),"-"),"[[",2))) # metaT
+)
 
-env.mat.metaG<-fread("../data/processed/NOG_env.mat.metaG.txt",header=T,sep="\t")
-env.mat.metaG$Station.label[env.mat.metaG$Station.label=="TARA_148b"]<-"TARA_148"
-env.mat.metaT<-fread("../data/processed/NOG_env.mat.metaT.txt",header=T,sep="\t")
-env.mat.metaT$Station.label[env.mat.metaT$Station.label=="TARA_148b"]<-"TARA_148"
-env.mat.match<-fread("../data/processed/NOG_env.mat.match.txt",header=T,sep="\t")
-
-nrow(env.mat.match) # Both
-nrow(env.mat.metaG)-length(which(env.mat.metaG$Barcode %in% sapply(strsplit(env.mat.match$Barcode,"-"),"[[",1))) # metaG
-nrow(env.mat.metaT)-length(which(env.mat.metaT$Barcode %in% sapply(strsplit(env.mat.match$Barcode,"-"),"[[",2))) # metaT
-
-
+write_tsv(numbers, '../results/tables/Table_numbers_for_map.tsv')

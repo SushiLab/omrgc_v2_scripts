@@ -1,0 +1,60 @@
+[1] "ANOVA"
+[1] "mitags"
+             Df  Sum Sq Mean Sq F value Pr(>F)    
+Layer         2 6125569 3062784    94.8 <2e-16 ***
+polar         1 3804816 3804816   117.8 <2e-16 ***
+Residuals   176 5686508   32310                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+[1] "metag"
+             Df    Sum Sq   Mean Sq F value   Pr(>F)    
+Layer         2 4.576e+08 228795265   23.57 2.44e-09 ***
+polar         1 2.894e+08 289445334   29.82 2.67e-07 ***
+Residuals   118 1.145e+09   9707328                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+[1] "metat"
+             Df    Sum Sq  Mean Sq F value  Pr(>F)   
+Layer         2 1.598e+08 79912117   5.244 0.00658 **
+polar         1 7.538e+05   753813   0.049 0.82438   
+Residuals   118 1.798e+09 15239440                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+[1] ""
+[1] "CORR"
+
+	Pearson's product-moment correlation
+
+data:  all$tax.richness and all$metaG.richness
+t = 14.382, df = 127, p-value < 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.7110299 0.8450211
+sample estimates:
+     cor 
+0.787141 
+
+
+	Pearson's product-moment correlation
+
+data:  all$tax.richness and all$metaT.richness
+t = 1.8859, df = 127, p-value = 0.06159
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.008031376  0.328533467
+sample estimates:
+      cor 
+0.1650521 
+
+
+	Pearson's product-moment correlation
+
+data:  all$metaG.richness and all$metaT.richness
+t = 4.6737, df = 127, p-value = 7.436e-06
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.2251380 0.5214118
+sample estimates:
+      cor 
+0.3830842 
+
