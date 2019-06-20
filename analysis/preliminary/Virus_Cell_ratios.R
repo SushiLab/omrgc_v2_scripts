@@ -65,7 +65,7 @@ p3<-ggplot(data=res %>% filter(Layer %in% c("SRF","DCM","MES")),aes(x=Layer,y=vi
   labs(title="Virus-to-cell ratio (VCR)")
 
 
-ggsave(filename = "../results/figures/FigureX_VCR.pdf",p3,width=unit(2.5,"cm"),height=unit(2.5,"cm"))
+ggsave(filename = "../results/figures/Figure_Virus_Cell_ratios.pdf",p3,width=unit(2.5,"cm"),height=unit(2.5,"cm"))
 
 # Statistical tests ----------------------------------------------------------------------
 

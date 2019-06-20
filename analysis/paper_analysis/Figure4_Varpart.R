@@ -50,7 +50,7 @@ env.mat.match$daylength<-as.numeric(daylength(lat = env.mat.match$Latitude,doy=e
 env.mat.match$hour<-as.numeric(substr(env.mat.match$Event.date,12,13))
 env.mat.match<-env.mat.match[match(rownames(metaG.norm.match),env.mat.match$Barcode),]
 
-# Variance partitioning: Sample bins through temperature (each layers) -------------------
+# EPI - Variance partitioning: Sample bins through temperature (each layers) -------------
 
 # EPI
 res.epi<-varpart.sqr.euc.all(metaT.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],
@@ -73,7 +73,8 @@ for (i in 1:(nrow(mat.env)-n)){
   res<-rbind(res,tmp)
 }
 
-################
+# Plot distance distributions ------------------------------------------------------------
+
 res$polar1<-env.mat.match$polar[match(res$sample1,env.mat.match$Barcode)]
 res$polar2<-env.mat.match$polar[match(res$sample2,env.mat.match$Barcode)]
 res$polar<-interaction(res$polar1,res$polar2)
@@ -86,7 +87,7 @@ t.test(res$value[res$Component=="Abundance" & res$polar=="polar.polar"],res$valu
 t.test(res$value[res$Component=="Expression" & res$polar=="polar.polar"],res$value[res$Component=="Expression" & res$polar=="non polar.non polar"])
 t.test(res$value[res$Component=="interaction" & res$polar=="polar.polar"],res$value[res$Component=="interaction" & res$polar=="non polar.non polar"])
 
-################
+# Plot distance partition with interactions ----------------------------------------------
 
 res.med<-res %>%
   group_by(bin,Component) %>%
@@ -124,6 +125,9 @@ g1<-ggplot() +
 g1.later<-g1 +
   scale_y_continuous(limits = c(-4,4)) +
   labs(title = "Epipelagic")
+
+
+# Plots for panels A and B: Oceans, Latitude, Temperature... -----------------------------
 
 res.env<-res %>%
   dplyr::select(sample1,sample2,bin,median.temp) %>%
@@ -175,7 +179,7 @@ gextra
 res.ocean<-as.data.frame(table(res.env$bin,res.env$Ocean.region))
 res.ocean$Var1<-as.integer(as.character(res.ocean$Var1))
 res.ocean<-res.ocean %>%
-  rename(bin=Var1,Ocean=Var2,prop=Freq) %>%
+  dplyr::rename(bin=Var1,Ocean=Var2,prop=Freq) %>%
   left_join(res.lat,by="bin")
 res.ocean$Ocean<-gsub("\\[","",gsub("\\]","",sapply(strsplit(as.character(res.ocean$Ocean)," "),"[[",1)))
 g3<-ggplot(data=res.ocean,aes(x=median.temp,y=prop,fill=Ocean)) +
@@ -185,13 +189,15 @@ g3<-ggplot(data=res.ocean,aes(x=median.temp,y=prop,fill=Ocean)) +
   theme(axis.title.x = element_blank(),axis.text.x = element_blank()) +
   ylab("Number of samples")
 
+# Complete plot --------------------------------------------------------------------------
 
 g<-g3 / g2 / g1 + plot_layout(heights = c(2,2,6))
 gB<-g3 / gextra / g1 + plot_layout(heights = c(2,2,6))
 ggsave("../results/Fig4B_Varpart_EPI.pdf",g,height=8,width=5)
 ggsave("../results/Fig4B_Varpart_EPI_B.pdf",gB,height=8,width=5)
 
-#####################################################################################
+# Plot with sampling hours on the panel --------------------------------------------------
+
 res.hour<-res.env %>%
   group_by(bin,median.temp) %>%
   summarise(median.hour=median(hour),q1=quantile(hour,probs = 0.25),q3=quantile(hour,probs = 0.75)) %>%
@@ -208,8 +214,8 @@ g2b<-ggplot() +
   ylab("Hour")
 g<-g3 / g2b / g1 + plot_layout(heights = c(2,2,6))
 ggsave("../results/Fig4B_Varpart_EPI_hour_in_panelB.pdf",g,height=8,width=5)
-#####################################################################################
 
+# Plot without interactions --------------------------------------------------------------
 
 # Without interaction
 g1<-ggplot() +
@@ -228,7 +234,8 @@ g1<-ggplot() +
 
 g<-g3 / g2 / g1 + plot_layout(heights = c(2,2,6))
 ggsave("../results/Fig4B_Varpart_EPI_nointer.pdf",g,height=8,width=5)
-#####################################################################################
+
+# MES - Variance partitioning: Sample bins through temperature (each layers) -------------
 
 # MES
 res.mes<-varpart.sqr.euc.all(metaT.norm.match.log2[env.mat.match$Layer %in% c("MES"),],metaG.norm.match.log2[env.mat.match$Layer %in% c("MES"),],ratio.mat[env.mat.match$Layer %in% c("MES"),])
@@ -269,6 +276,8 @@ res.med<-left_join(res.med,pval.df,by="bin") %>%
   unique()
 res.med$sign[res.med$Component.x=="interaction"]<-"P<0.05"
 
+# Plot distance partition with interactions ----------------------------------------------
+
 g1<-ggplot() +
   geom_point(data=res.med,aes(x=median.temp,y=median,col=Component.x,shape=sign)) +
   geom_line(data=res.med,aes(x=median.temp,y=median,col=Component.x)) +
@@ -288,6 +297,8 @@ g1.later2<-g1 +
   scale_shape_manual(values = c(19)) +
   theme(legend.position = "none") +
   labs(title="Mesopelagic")
+
+# Plot distance partition with all panels ------------------------------------------------
 
 res.env<-res %>%
   dplyr::select(sample1,sample2,bin,median.temp) %>%
@@ -313,7 +324,7 @@ g2<-ggplot() +
 res.ocean<-as.data.frame(table(res.env$bin,res.env$Ocean.region))
 res.ocean$Var1<-as.integer(as.character(res.ocean$Var1))
 res.ocean<-res.ocean %>%
-  rename(bin=Var1,Ocean=Var2,prop=Freq) %>%
+  dplyr::rename(bin=Var1,Ocean=Var2,prop=Freq) %>%
   left_join(res.lat,by="bin")
 res.ocean$Ocean<-gsub("\\[","",gsub("\\]","",sapply(strsplit(as.character(res.ocean$Ocean)," "),"[[",1)))
 g3<-ggplot(data=res.ocean,aes(x=median.temp,y=prop,fill=Ocean)) +
@@ -326,6 +337,8 @@ g3<-ggplot(data=res.ocean,aes(x=median.temp,y=prop,fill=Ocean)) +
 
 g<-g3 / g2 / g1 + plot_layout(heights = c(2,2,6))
 ggsave("../results/Fig4B_Varpart_MES.pdf",g,height=8,width=5)
+
+# Plot distance partition without interactions -------------------------------------------
 
 # Without interaction
 g1<-ggplot() +
@@ -344,7 +357,8 @@ g1<-ggplot() +
 g<-g3 / g2 / g1 + plot_layout(heights = c(2,2,6))
 ggsave("../results/Fig4B_Varpart_MES_nointer.pdf",g,height=8,width=5)
 
-#####################################################################################
+# EPI and MES - Plot supplementary figure with interactions ------------------------------
+
 # Merge epi and MES
 
 (g1.later | g1.later2) + plot_layout(widths = c(3,1))

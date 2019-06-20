@@ -130,7 +130,7 @@ p.c<-ggplot(data=all,aes(x=metaG.richness,y=metaT.richness)) +
 
 p <- p.a | p.b | p.c
 
-ggsave(filename = "../results/figures/Figure_diversity_comparison.pdf",p,width=unit(12,"cm"),height=unit(3,"cm"))
+ggsave(filename = "../results/figures/Figure_diversity_correlation.pdf",p,width=unit(12,"cm"),height=unit(3,"cm"))
 
 
 # Statistical tests ----------------------------------------------------------------------
