@@ -2,6 +2,7 @@
 data/*
 old_versions*
 .DS_store
+.httr_oauth
 
 # History files
 .Rhistory

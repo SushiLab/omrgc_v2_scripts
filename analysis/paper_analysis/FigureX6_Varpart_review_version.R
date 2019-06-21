@@ -63,7 +63,7 @@ res.epi<-varpart.sqr.euc.all(metaT.norm.match.log2[env.mat.match$Layer %in% c("S
                              metaG.norm.match.log2[env.mat.match$Layer %in% c("SRF","DCM"),],
                              ratio.mat[env.mat.match$Layer %in% c("SRF","DCM"),])
 # Format the results
-res.epi.comp.norm <- as_tibble(res.epi$components) %>%
+res.epi.comp <- as_tibble(res.epi$components) %>%
   mutate(comparison_id = paste0(sample1, ':', sample2)) %>%
   gather("Component","value",-sample1,-sample2,-comparison_id) %>%
   mutate(comparison_id_w_component = paste0(comparison_id, ':', Component),
@@ -76,8 +76,8 @@ ordre<-order(mat.env$Temperature)
 res.epi.binned <- NULL
 for (i in 1:(nrow(mat.env)-n)){
   smpls<-mat.env$Barcode[ordre[i:(i+n-1)]]
-  pos<-which(res.epi.comp.norm$sample1 %in% smpls & res.epi.comp.norm$sample2 %in% smpls)
-  tmp<-res.epi.comp.norm[pos,]
+  pos<-which(res.epi.comp$sample1 %in% smpls & res.epi.comp$sample2 %in% smpls)
+  tmp<-res.epi.comp[pos,]
   tmp$bin<-i
   tmp$median.temp<-median(mat.env$Temperature[ordre[i:(i+n-1)]])
   tmp$width<-max(mat.env$Temperature[ordre[i:(i+n-1)]])-min(mat.env$Temperature[ordre[i:(i+n-1)]])
