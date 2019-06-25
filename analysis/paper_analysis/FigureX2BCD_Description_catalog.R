@@ -122,17 +122,20 @@ dades = dades.raw %>%
 # Generate plot --------------------------------------------------------------------------
 
 p1<-ggplot(dades,aes(x=sample.num,y=n.genes,col=polar)) +
-  geom_point() +
+  geom_point(size = 1) +
   scale_color_manual(values=c(non_polar_col,polar_col)) +
   xlab("Prok. enriched samples") +
   ylab("Number of genes") +
   ylim(0,50000000) +
-  geom_vline(xintercept = 139.5,linetype=2) +
-  annotate("segment", x = 40, xend = 180,y = 47000000, yend = 47000000, arrow = arrow(type = 'closed', angle = 20)) +
-  annotate("text", x = 20, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold') +
+  geom_vline(xintercept = 139.5, linetype = 2, size = .75*size_converter) +
+  annotate("segment", x = 40, xend = 180,y = 47000000, yend = 47000000,
+           arrow = arrow(type = 'closed', angle = 20, length = unit(7, 'pt')), size = .75*size_converter) +
+  annotate("text", x = 20, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold', size = 7*size_converter) +
   theme_bw() +
+  theme_cell +
   theme(legend.position = c(0.3,0.2),
-        legend.title = element_blank())
+        legend.title = element_blank(),
+        axis.text.y = element_text(angle = 90))
 
 tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
                       dplyr::rename(tax.stats.phyl, Taxon = Phylum)) %>%
@@ -143,12 +146,14 @@ tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
 p23_main <- ggplot(tibble_plot23, aes(x="Dummy",y=perc,fill=Taxon)) +
   geom_bar(stat = "identity",position = position_stack()) +
   theme_minimal() +
-  facet_wrap(~type, strip.position = 'bottom') +
+  theme_cell +
+  facet_wrap(~type) + # removed ", strip.position = 'bottom'" as it doesn't align well in combined plots
   scale_fill_manual(values=c(vir_6, vir_4)) +
   ylab("Percentage of genes") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
+        axis.line.x = element_blank(),
         panel.spacing.x = unit(0, "lines"),
         panel.border = element_blank(),
         panel.grid.major.x = element_blank(),
@@ -157,13 +162,13 @@ p23_main <- ggplot(tibble_plot23, aes(x="Dummy",y=perc,fill=Taxon)) +
 p23_first_legend_pre <- tibble_plot23 %>%
   filter(Taxon %in% tax.stats.dom$Domain) %>%
   ggplot(aes("Dummy", fill = Taxon)) + geom_bar() + 
-  scale_fill_manual(values = vir_6, name = "Domain")
+  scale_fill_manual(values = vir_6, name = "Domain") + theme_cell
 p23_first_legend = ggdraw() + draw_plot(get_legend(p23_first_legend_pre))
 
 p23_second_legend_pre <- tibble_plot23 %>%
   filter(Taxon %in% tax.stats.phyl$Phylum) %>%
   ggplot(aes("Dummy", fill = Taxon)) + geom_bar() + 
-  scale_fill_manual(values = vir_4, name = "Phylum (>2%)")
+  scale_fill_manual(values = vir_4, name = "Phylum (>2%)") + theme_cell
 p23_second_legend = ggdraw() + draw_plot(get_legend(p23_second_legend_pre))
 
 
@@ -177,12 +182,14 @@ tibble_plot4 = func.stats.merged %>%
 p4_main <- ggplot(tibble_plot4, aes(x="Dummy",y=perc,fill=annotation)) +
   geom_bar(stat = "identity",position = position_stack()) +
   theme_minimal() +
-  facet_wrap(~type, strip.position = 'bottom') +
+  theme_cell + 
+  facet_wrap(~type) + # removed ", strip.position = 'bottom'" as it doesn't align well in combined plots
   scale_fill_manual(values=mag_5) +
   ylab("Percentage of genes") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank(),
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        axis.line = element_blank(),
         panel.spacing.x = unit(0, "lines"),
         panel.border = element_blank(),
         panel.grid.major.x = element_blank(),
@@ -191,24 +198,21 @@ p4_main <- ggplot(tibble_plot4, aes(x="Dummy",y=perc,fill=annotation)) +
 p4_first_legend_pre <- tibble_plot4 %>%
   filter(type == "OG + GC") %>%
   ggplot(aes(type, fill = annotation)) + geom_bar() + 
-  scale_fill_manual(values = mag_5[2:4], name = 'OG + GC')
-p4_first_legend = ggdraw() + draw_plot(get_legend(p4_first_legend_pre))
+  scale_fill_manual(values = mag_5[2:4], name = 'OG + GC') + theme_cell
+p4_first_legend = ggdraw() + draw_plot(get_legend(p4_first_legend_pre)) # using cowplot
 
 p4_second_legend_pre <- tibble_plot4 %>%
   filter(type == "KO") %>%
   ggplot(aes(type, fill = annotation)) + geom_bar() + 
-  scale_fill_manual(values =  mag_5[c(1,5)], name = 'KO')
+  scale_fill_manual(values =  mag_5[c(1,5)], name = 'KO') + theme_cell
 p4_second_legend = ggdraw() + draw_plot(get_legend(p4_second_legend_pre))
 
 
 figure_X2_B = p1 
 
 figure_X2_C = 
-  (p23_main | (p23_first_legend / p23_second_legend)) + plot_layout(widths = c(1,2))
-
-figure_X2_D = 
-  (p4_main | (p4_first_legend / p4_second_legend / plot_spacer())) + plot_layout(widths = c(1,2))
+  (p23_main | p4_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend)) +
+  plot_layout(widths = c(1, 1, 2))
 
 ggsave('../results/figures/Figure_X2_B_Catalog_accum.pdf', figure_X2_B)
 ggsave('../results/figures/Figure_X2_C_Taxo_annot.pdf', figure_X2_C)
-ggsave('../results/figures/Figure_X2_D_Func_annot.pdf', figure_X2_D)
