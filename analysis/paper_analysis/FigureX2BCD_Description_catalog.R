@@ -33,7 +33,7 @@ relevel_domain = c("No annotation (27.48 %)",
                    "Bacteria (59.26 %)")
 relevel_phylum = "No annotation (52.06 %)" # extracted from the plot
 relevel_func = c("No annotation (76.41 %)","No annotation (17.26 %)",
-                 "GC (Gene Clusters, 21.8 %)", "OG (eggNOG\nOrthologous Groups, 60.94 %)",
+                 "GC (Gene Clusters, 21.8 %)", "OG (eggNOG Orthologous\nGroups, 60.94 %)",
                  "KO (KEGG Orthologs, 23.59 %)")
 pal<-sushi.palette()[c(14,1:13,15)]
 vir_init = viridis(n = 10, direction = -1)
@@ -122,26 +122,25 @@ dades = dades.raw %>%
 # Generate plot --------------------------------------------------------------------------
 
 p1<-ggplot(dades,aes(x=sample.num,y=n.genes,col=polar)) +
-  geom_point(size = 1) +
+  geom_point(size = 2*size_converter) +
   scale_color_manual(values=c(non_polar_col,polar_col)) +
-  xlab("Prok. enriched samples") +
+  xlab("Prokaryote-enriched samples") +
   ylab("Number of genes") +
   ylim(0,50000000) +
-  geom_vline(xintercept = 139.5, linetype = 2, size = .75*size_converter) +
+  geom_vline(xintercept = 139.5, linetype = 2, size = .5*size_converter) +
   annotate("segment", x = 40, xend = 180,y = 47000000, yend = 47000000,
            arrow = arrow(type = 'closed', angle = 20, length = unit(7, 'pt')), size = .75*size_converter) +
-  annotate("text", x = 20, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold', size = 7*size_converter) +
-  theme_bw() +
+  annotate("text", x = 20, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold', size = 6*size_converter) +
+  theme_minimal() +
   theme_cell +
   theme(legend.position = c(0.3,0.2),
         legend.title = element_blank(),
-        axis.text.y = element_text(angle = 90))
+        axis.text.y = element_text(angle = 90),
+        axis.line = element_line(colour = 'black', size = 0.5*size_converter,
+                                 arrow = arrow(angle = 30, type = "open", length = unit(6, 'pt'))))
 
 tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
-                      dplyr::rename(tax.stats.phyl, Taxon = Phylum)) %>%
-  mutate(Taxon = factor(Taxon,
-                        levels = c("Domain", levels(tax.stats.dom$Domain), " ",
-                                   "Phylum (>2%)", levels(tax.stats.phyl$Phylum)))) # fix for the legend...
+                      dplyr::rename(tax.stats.phyl, Taxon = Phylum))
 
 p23_main <- ggplot(tibble_plot23, aes(x="Dummy",y=perc,fill=Taxon)) +
   geom_bar(stat = "identity",position = position_stack()) +
@@ -171,10 +170,9 @@ p23_second_legend_pre <- tibble_plot23 %>%
   scale_fill_manual(values = vir_4, name = "Phylum (>2%)") + theme_cell
 p23_second_legend = ggdraw() + draw_plot(get_legend(p23_second_legend_pre))
 
-
 tibble_plot4 = func.stats.merged %>%
   mutate(annotation = gsub('KO \\(', 'KO \\(KEGG Orthologs, ', annotation)) %>%
-  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG\nOrthologous Groups, ', annotation)) %>%
+  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG Orthologous\nGroups, ', annotation)) %>%
   mutate(annotation = gsub('GF \\(', 'GC \\(Gene Clusters, ', annotation)) %>%
   mutate(type = factor(type, levels = rev(unique(type))),
          annotation = fct_relevel(annotation, relevel_func))
@@ -208,11 +206,30 @@ p4_second_legend_pre <- tibble_plot4 %>%
 p4_second_legend = ggdraw() + draw_plot(get_legend(p4_second_legend_pre))
 
 
+tibble_plot234 = rbind(rename(tibble_plot23, Legend = Taxon), rename(tibble_plot4, Legend = annotation)) %>%
+  mutate(type = factor(type, levels = c("Domain", "Phylum", "OG + GC", "KO")))
+
+p234_main <- ggplot(tibble_plot234, aes(x=type,y=perc,fill=Legend)) +
+  geom_bar(stat = "identity",position = position_stack()) +
+  theme_minimal() +
+  theme_cell +
+  scale_fill_manual(values=c(vir_6, vir_4, mag_5)) +
+  ylab("Percentage of genes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.line.x = element_blank(),
+        panel.spacing.x = unit(0, "lines"),
+        panel.border = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = 'None')
+
 figure_X2_B = p1 
 
 figure_X2_C = 
-  (p23_main | p4_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend)) +
-  plot_layout(widths = c(1, 1, 2))
+  (p234_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend) + 
+     plot_layout(height = c(6, 4, 4, 2))) +
+  plot_layout(widths = c(2, 4))
 
-ggsave('../results/figures/Figure_X2_B_Catalog_accum.pdf', figure_X2_B)
-ggsave('../results/figures/Figure_X2_C_Taxo_annot.pdf', figure_X2_C)
+# ggsave('../results/figures/Figure_X2_B_Catalog_accum.pdf', figure_X2_B)
+# ggsave('../results/figures/Figure_X2_C_Taxo_annot.pdf', figure_X2_C)

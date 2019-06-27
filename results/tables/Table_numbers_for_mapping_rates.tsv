@@ -1,5 +1,7 @@
-Dataset	MarRef (Ref. Genomes)	This study (Gene Catalog)	Delmont et al. 2018 (MAGs)	Type
-Metagenomes	3.425	81.02448852873563	4.365	Non Coding
-Metatranscriptomes	9.66	58.25858095402299	9.3	Non Coding
-Metagenomes	2.9797499999999997	70.49130502	3.79755	Coding Sequences
-Metatranscriptomes	8.4042	50.68496543	8.091000000000001	Coding Sequences
+Study	Dataset	Median mapping rate	Mean mapping rate
+Delmont et al. 2018 (MAGs)	Metagenomes	3.5409	3.875546511627907
+Delmont et al. 2018 (MAGs)	Metatranscriptomes	8.9	12.3064
+MarRef (Ref. Genomes)	Metagenomes	2.8362	3.714360465116279
+MarRef (Ref. Genomes)	Metatranscriptomes	9.63	12.36992
+This study (Gene Catalog)	Metagenomes	69.63415971	68.75485904751937
+This study (Gene Catalog)	Metatranscriptomes	50.97393614	52.0196222056

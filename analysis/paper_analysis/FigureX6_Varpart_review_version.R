@@ -16,6 +16,7 @@ library(patchwork)
 library(cowplot)
 source("lib/sushipal.R")
 source("lib/varpart.sqr.euc_functions.R")
+source("lib/Cell_Press_Guidelines.R")
 palette(sushi.palette(alpha=0.7)[c(2,3,4,1,14)])
 
 # Variables ------------------------------------------------------------------------------
@@ -135,14 +136,15 @@ t.test(filter(res.epi.binned, !duplicated(comparison_id_w_component) & Component
 p_violin = ggplot(tibble_violin_plot) +
   geom_violin(aes(x='Dummy',y=value,fill=polar),
               scale='width',draw_quantiles = c(0.5)) +
-  annotate("segment", x = .75, xend = 1.25, y = 6, yend = 6) +
-  annotate("text", label = '***', x = 1, y = 6.25) +
+  annotate("segment", x = .75, xend = 1.25, y = 6, yend = 6, size = 1*size_converter) +
+  annotate("text", label = '***', x = 1, y = 6.1, size = 7*size_converter) +
   scale_fill_manual(values = c(polar_col, non_polar_col)) +
   facet_wrap(~Component) +
   ylab('Distances') +
   ggtitle('Within polar vs within non-polar communities') +
   theme_bw() +
-  theme(plot.background = element_rect(colour = 'black', fill = 'white'),
+  theme_cell +
+  theme(plot.background = element_rect(colour = 'grey80', fill = 'white'),
         legend.position = 'None',
         axis.title.x = element_blank(),
         axis.text.x = element_blank(),
@@ -172,7 +174,7 @@ pval.df = pval.df %>%
   mutate(p.val.fdr =  p.adjust(p.val, method = "fdr"),
          p.val.holm =  p.adjust(p.val, method = "holm"),
          p.val.bonf =  p.adjust(p.val, method = "bonferroni")) %>%
-  mutate(sign = ifelse(p.val.fdr <= 0.05, "Significant", "Non Significant"))
+  mutate(sign = ifelse(p.val.fdr <= 0.05, "Significant (p < 0.05)", "Not Significant"))
 
 res.epi.binned.med.simpl <- left_join(res.epi.binned.med, pval.df, by="bin") %>%
   dplyr::select(bin, Component, mean, sd, median, q1, q3, Layer, median.temp, width, p.val, p.val.fdr, sign, polarity) %>%
@@ -198,24 +200,27 @@ tibble_ratio_plot = res.epi.binned.med.simpl %>%
 
 # FIXME add color of the line/points based on % of polar samples.
 p_ratio<-ggplot(tibble_ratio_plot) +
-  geom_hline(yintercept = 1, linetype = 2, color = 'grey75') +
+  geom_hline(yintercept = 1, linetype = 2, color = 'grey75', size = 1*size_converter) +
   geom_point(aes(x = Bin_temperature, y = Ratio, shape = Significance, fill = Polarity),
-             size = 3) +
+             size = 7*size_converter) +
   theme_minimal() +
   ylab("Abundance-based distances / Expression-based distances") +
-  xlab("Median temperature of the bin (°C)") +
+  xlab("Median temperature of the bin [°C]") +
   scale_shape_manual(values = c(21,23)) +
   scale_fill_gradient2(low = non_polar_col, high = polar_col, mid = 'lightgrey', midpoint = 0.5,
-                       breaks = c(0, 1), labels = c('All samples are non polar', 'All samples are polar')) +
+                       breaks = c(0, 1), labels = c('All samples are non-polar', 'All samples are polar')) +
   labs(fill = 'Proportion of samples', shape = element_blank()) +
+  theme_cell +
   theme(legend.position = c(.95, .95), 
         legend.justification = c(1, 1), 
         legend.box.background = element_rect(colour = NA, fill = "white"),
-        plot.margin = unit(c(1,5,1,1), 'lines')) +
-  annotate("segment", x = 30, xend = 30, y = 1.05, yend = 1.3, arrow = arrow(type = 'closed', angle = 20)) +
-  annotate("text", x = 30.75, y = 1.17, label = 'Organismal turnover dominates', angle = -90) +
-  annotate("segment", x = 30, xend = 30, y = .95, yend = .7, arrow = arrow(type = 'closed', angle = 20)) +
-  annotate("text", x = 30.75, y = .83, label = 'Acclimatization dominates', angle = -90) +
+        plot.margin = unit(c(1,2,1,1), 'lines'),
+        axis.line = element_line(colour = 'black', size = 0.5*size_converter,
+                                 arrow = arrow(angle = 30, type = "open", length = unit(6, 'pt')))) +
+  annotate("segment", x = 30, xend = 30, y = 1.05, yend = 1.4, arrow = arrow(type = 'closed', angle = 20, length = unit(8, 'pt'))) +
+  annotate("text", x = 30.75, y = 1.225, label = 'Organismal turnover dominates', angle = -90, size = 7*size_converter) +
+  annotate("segment", x = 30, xend = 30, y = .95, yend = .6, arrow = arrow(type = 'closed', angle = 20, length = unit(8, 'pt'))) +
+  annotate("text", x = 30.75, y = .775, label = 'Acclimatization dominates', angle = -90, size = 7*size_converter) +
   coord_cartesian(xlim = c(0, 28), clip = 'off')
 
 p_ratio
@@ -223,8 +228,8 @@ p_ratio
 plot.with.inset <-
   ggdraw() +
   draw_plot(p_ratio) +
-  draw_plot(p_violin, x = .1, y = .1, width = .35, height = .4)
+  draw_plot(p_violin, x = .1, y = .12, width = .35, height = .4)
 
 plot.with.inset
 
-ggsave("../results/figures/Figure_distance_partitioning_for_review.pdf", plot.with.inset, height = 9, width = 12)
+ggsave("../results/figures/Figure_X6_distance_partitioning.raw.pdf", plot.with.inset, height = 120, width = two_col, unit = col_unit)

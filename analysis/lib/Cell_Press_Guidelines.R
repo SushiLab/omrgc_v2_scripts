@@ -14,7 +14,7 @@
 one_col = 85
 col_unit = 'mm'
 # 1.5 column, 114 mm;
-ono_half_col = 114
+one_half_col = 114
 # and 2 column, 174 mm (the full width of the page).
 two_col = 174
 # Define a size converter
@@ -27,9 +27,9 @@ size_converter = 0.352777778
 theme_cell <- theme(
     axis.line = element_blank(),
     axis.text = element_text(margin = unit(0.2, "lines")),
-    axis.text.x = element_text(size = unit(7 * 0.85, 'pt'), lineheight = 0.5, vjust = .5),
-    axis.text.y = element_text(size = 7 * 0.85, lineheight = 0.5, hjust = .5),
-    axis.ticks = element_line(size = 0.1),
+    axis.text.x = element_text(size = unit(7 * 0.85, 'pt'), lineheight = 0.7, vjust = .5),
+    axis.text.y = element_text(size = 7 * 0.85, lineheight = 0.7, hjust = .5),
+    axis.ticks = element_line(size = 0.2),
     axis.title.x = element_text(size = 7, vjust = .5),
     axis.title.y = element_text(size = 7, angle = 90, vjust = 0.25),
     axis.ticks.length = unit(0.15, "lines"),
@@ -37,8 +37,9 @@ theme_cell <- theme(
     # axis.text = element_text(size = unit(5, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     
     legend.key.size = unit(.5, "lines"),
-    legend.text = element_text(size = 7 * 0.85),
-    legend.title = element_text(size = 7 * 0.9, face = "bold", hjust = 0),
+    legend.text = element_text(size = 7 * 0.85, margin = margin(0, 0, 0, 2, unit = 'pt')),
+    legend.title = element_text(size = 7 * 0.9, face = "bold", hjust = 0,
+                                margin = margin(0, 0, 2, 0, unit = 'pt')),
     legend.position = "right",
     # legend.text = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     # legend.title = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
@@ -50,8 +51,8 @@ theme_cell <- theme(
     # legend.box.spacing = unit(0, 'pt'),
     # legend.spacing = unit(0, 'pt')),
     
-    panel.grid.major = element_line(size = 0.1),
-    panel.grid.minor = element_line(size = 0.25),
+    panel.grid.major = element_line(size = 0.5*size_converter),
+    panel.grid.minor = element_line(size = 0.3*size_converter),
     panel.spacing = unit(0.1, "lines"),
     
     strip.text.x = element_text(size = 7 * 0.85),

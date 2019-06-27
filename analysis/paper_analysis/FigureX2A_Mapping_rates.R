@@ -21,6 +21,7 @@ coding_perc = 87 # The average perc. of a genome that actually codes. Extracted 
 matched_samples = readxl::read_xlsx("../results/paper_tables/submission/Table_S1.xlsx", sheet = "Table_W6")
 plot_dest = '../results/figures/Figure_X2_A_mapping_rates.pdf'
 table_dest = '../results/tables/Table_numbers_for_mapping_rates.tsv'
+col_datasets = c("#D99233", "#4199DD")# MetaG, MetaT
 vir_cols = viridis::viridis(2, begin = .2, end =.9)
 vir_grey = c(DescTools::ColToGrey(vir_cols[length(vir_cols)]), vir_cols[1]) # Last color as greyscale
 
@@ -52,46 +53,45 @@ Formatted_table =
   left_join(select(mapping_rates, c(Sample_1, `Fraction Aligned DELMONT MAGS`)),
             by = c('Sample' = 'Sample_1')) %>%
   mutate(Dataset = ifelse(grepl('_G$', Sample), 'Metagenomes', 'Metatranscriptomes')) %>%
-  mutate(`MarRef\n(Ref. Genomes)` = coding_perc/100*`Fraction Aligned MARREF`,
-         `Delmont et al. 2018\n(MAGs)` = coding_perc/100*`Fraction Aligned DELMONT MAGS`,
+  # Factor in the coding fraction of the genomes in case of metagenomes to compare to catalog
+  mutate(`MarRef\n(Ref. Genomes)` = ifelse(Dataset == 'Metagenomes',
+                                           coding_perc/100*`Fraction Aligned MARREF`,
+                                           `Fraction Aligned MARREF`),
+         `Delmont et al. 2018\n(MAGs)` = ifelse(Dataset == 'Metagenomes',
+                                                coding_perc/100*`Fraction Aligned DELMONT MAGS`,
+                                                `Fraction Aligned DELMONT MAGS`),
          `This study\n(Gene Catalog)` = fraction_mapped_inserts*100) %>%
   select(-c(`Fraction Aligned MARREF`, fraction_mapped_inserts, `Fraction Aligned DELMONT MAGS`)) %>%
-  filter(PANGAEA_ID %in% matched_samples$Barcode)
+  filter(PANGAEA_ID %in% unlist(strsplit(matched_samples$Barcode, '-')))
+
+assertthat::assert_that(length(unlist(strsplit(matched_samples$Barcode, '-'))) == 2*nrow(matched_samples),
+                        msg = "Number of Pangea Id not equal to twice the number of pairs...")
+assertthat::assert_that(nrow(Formatted_table) == 2*nrow(matched_samples),
+                        msg = "Number of samples not equal to twice the number of pairs...")
 
 Plot_table = Formatted_table %>%
-  gather(key = 'data', value = 'aligned_perc' , -c(Dataset, Type, Sample)) %>%
+  gather(key = 'data', value = 'aligned_perc' , -c(Dataset, Sample, PANGAEA_ID)) %>%
   mutate(data = factor(data, levels = c('MarRef\n(Ref. Genomes)',
                                         'Delmont et al. 2018\n(MAGs)',
                                         'This study\n(Gene Catalog)')))
 
-Plot_table$aligned_perc[Plot_table$Type == 'Non Coding'] = 
-  Plot_table$aligned_perc[Plot_table$Type == 'Non Coding'] -
-  Plot_table$aligned_perc[Plot_table$Type == 'Coding Sequences']
-
-Plot_table$Type = factor(Plot_table$Type, levels = c('Non Coding', 'Coding Sequences'))
-
-Plot_table = Plot_table %>%
-  filter(!(Dataset == 'Metatranscriptomes' & Type == 'Non Coding')) %>%
-  mutate(Type = paste(Dataset, '-', Type))
-
 # plot -----------------------------------------------------------------------------------
 
-plot_mapping = ggplot(mutate(Plot_table, Dataset = toupper(Dataset))) +
-  # geom_bar(aes(x = data, y = aligned_perc, fill = Type),
-  #          stat = 'identity') +
-  geom_boxplot(aes(x = data, y = aligned_perc, fill = Type))
-theme_bw() +
+plot_mapping = ggplot(Plot_table) +
+  geom_boxplot(aes(x = data, y = aligned_perc, fill = Dataset, colour = Dataset),
+               alpha = .7, size = 0.75*size_converter, outlier.size = 2*size_converter) +
+  theme_minimal() +
   theme_cell +
   ylim(0, 100) +
   ylab('Average percentage of reads aligned (%)') +
-  scale_fill_manual(values = vir_grey) +
-  scale_colour_manual(values = c('black', NA)) +
-  facet_wrap(~Dataset) +
+  scale_fill_manual(values = col_datasets) +
+  scale_colour_manual(values = col_datasets) +
   theme(axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(.95, .95), 
+        legend.position = c(1, 1), 
         legend.justification = c(1, 1),
-        axis.text.x = element_text(angle = 35, hjust = 1))
+        axis.text.x = element_text(angle = 35, hjust = 1, vjust = 1),
+        axis.ticks = element_blank())
 
 plot_mapping
 
@@ -99,12 +99,17 @@ Formatted_table %>%
   dplyr::rename(`MarRef (Ref. Genomes)` = `MarRef\n(Ref. Genomes)`,
                 `This study (Gene Catalog)` = `This study\n(Gene Catalog)`,
                 `Delmont et al. 2018 (MAGs)` = `Delmont et al. 2018\n(MAGs)`) %>%
+  gather(key = Study, value = rate, -c(Sample, PANGAEA_ID, Dataset)) %>%
+  group_by(Study, Dataset) %>%
+  summarize(`Median mapping rate` = median(rate),
+            `Mean mapping rate` = mean(rate)) %>%
   write_tsv(table_dest)
-ggsave(filename = plot_dest, plot_mapping)
+
+#ggsave(filename = plot_dest, plot_mapping)
 
 source('paper_analysis/FigureX2BCD_Description_catalog.R')
 
-plot_to_save = wrap_plots(plot_mapping, figure_X2_B, figure_X2_C)
+plot_to_save = wrap_plots(plot_mapping, figure_X2_B, figure_X2_C, widths = c(1, 2, 3))
 
-ggsave(filename = '../results/figures/Figure_X2_Catalog_description.raw.pdf', plot_to_save, width = two_col, height = 80, units = col_unit)
+ggsave(filename = '../results/figures/Figure_X2_Catalog_description.raw.pdf', plot_to_save, width = two_col, height = 90, units = col_unit)
 
