@@ -1,7 +1,9 @@
-Study	Dataset	Median mapping rate	Mean mapping rate
-Delmont et al. 2018 (MAGs)	Metagenomes	3.5409	3.875546511627907
-Delmont et al. 2018 (MAGs)	Metatranscriptomes	8.9	12.3064
-MarRef (Ref. Genomes)	Metagenomes	2.8362	3.714360465116279
-MarRef (Ref. Genomes)	Metatranscriptomes	9.63	12.36992
-This study (Gene Catalog)	Metagenomes	69.63415971	68.75485904751937
-This study (Gene Catalog)	Metatranscriptomes	50.97393614	52.0196222056
+Study	Dataset	Biome	Median mapping rate	Mean mapping rate
+Delmont et al. 2018 (MAGs)	Metagenomes	Ocean	3.5409	3.875546511627907
+Delmont et al. 2018 (MAGs)	Metatranscriptomes	Ocean	8.9	12.3064
+MarRef (Ref. Genomes)	Metagenomes	Ocean	2.8362	3.714360465116279
+MarRef (Ref. Genomes)	Metatranscriptomes	Ocean	9.63	12.36992
+This study (Gene Catalog)	Metagenomes	Ocean	69.63415971	68.75485904751937
+This study (Gene Catalog)	Metatranscriptomes	Ocean	50.97393614	52.0196222056
+Pasolli et al. 2019 (Ref. genomes & MAGs)	Metagenomes	Human gut	NA	76.1337
+Almeida et al. 2019 (Ref. genomes & MAGs)	Metagenomes	Human gut	63.336	NA

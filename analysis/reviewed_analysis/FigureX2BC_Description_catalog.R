@@ -2,7 +2,6 @@
 # Code associated with the om-rgc v2 and tara prok metaT paper
 # Figure X2: Catalog descr. ==============================================================
 
-#rm(list = ls()) to be sourced
 if (basename(getwd()) != 'analysis'){
   setwd('analysis')
 }
@@ -17,6 +16,7 @@ library(patchwork)
 library(cowplot)
 library(viridis)
 source("lib/varpart.sqr.euc_functions.R")
+source("lib/Cell_Press_Guidelines.R")
 source("lib/sushipal.R")
 
 # Variables ------------------------------------------------------------------------------
@@ -35,11 +35,15 @@ relevel_phylum = "No annotation (52.06 %)" # extracted from the plot
 relevel_func = c("No annotation (76.41 %)","No annotation (17.26 %)",
                  "GC (Gene Clusters, 21.8 %)", "OG (eggNOG Orthologous\nGroups, 60.94 %)",
                  "KO (KEGG Orthologs, 23.59 %)")
-pal<-sushi.palette()[c(14,1:13,15)]
+pal<-sushi.palette()
+ggplot() + geom_point(aes(x=1:15,y=1:15,col=as.character(1:15)),size=5)+
+  scale_color_manual(values=pal)+theme_bw()+theme(legend.position = 'none')
 vir_init = viridis(n = 10, direction = -1)
 vir_init = c(DescTools::ColToGrey(vir_init[1]), vir_init[-1])
 vir_6 = vir_init[c(1:5, 8)]
+pal_6 = sushi.palette()[c(5,7,8,13,14,15)]
 vir_4 = vir_init[c(6,7,9,10)]
+pal_4 = sushi.palette()[c(10,11,12,1)]
 mag_init = viridis(n = 4, direction = -1, option = "magma",
                    begin = .2, end = .8)
 mag_5 = c(rep(DescTools::ColToGrey(vir_init[1]), 2), mag_init[-1])
@@ -119,6 +123,20 @@ dades = dades.raw %>%
   cbind(env.mat) %>%
   mutate(polar = ifelse(abs(Latitude) >= polarity, "polar", "non polar"))
 
+# Format tables for plots
+tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
+                      dplyr::rename(tax.stats.phyl, Taxon = Phylum))
+
+tibble_plot4 = func.stats.merged %>%
+  mutate(annotation = gsub('KO \\(', 'KO \\(KEGG Orthologs, ', annotation)) %>%
+  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG Orthologous\nGroups, ', annotation)) %>%
+  mutate(annotation = gsub('GF \\(', 'GC \\(Gene Clusters, ', annotation)) %>%
+  mutate(type = factor(type, levels = rev(unique(type))),
+         annotation = fct_relevel(annotation, relevel_func))
+
+tibble_plot234 = rbind(rename(tibble_plot23, Legend = Taxon), rename(tibble_plot4, Legend = annotation)) %>%
+  mutate(type = factor(type, levels = c("Domain", "Phylum", "OG + GC", "KO")))
+
 # Generate plot --------------------------------------------------------------------------
 
 p1<-ggplot(dades,aes(x=sample.num,y=n.genes,col=polar)) +
@@ -139,17 +157,13 @@ p1<-ggplot(dades,aes(x=sample.num,y=n.genes,col=polar)) +
         axis.line = element_line(colour = 'black', size = 0.5*size_converter,
                                  arrow = arrow(angle = 30, type = "open", length = unit(6, 'pt'))))
 
-tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
-                      dplyr::rename(tax.stats.phyl, Taxon = Phylum))
-
-p23_main <- ggplot(tibble_plot23, aes(x="Dummy",y=perc,fill=Taxon)) +
+p234_main <- ggplot(tibble_plot234, aes(x=type,y=perc,fill=Legend)) +
   geom_bar(stat = "identity",position = position_stack()) +
   theme_minimal() +
   theme_cell +
-  facet_wrap(~type) + # removed ", strip.position = 'bottom'" as it doesn't align well in combined plots
-  scale_fill_manual(values=c(vir_6, vir_4)) +
+  scale_fill_manual(values=c(vir_6, vir_4, mag_5)) +
   ylab("Percentage of genes") +
-  theme(axis.text.x = element_blank(),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
         axis.line.x = element_blank(),
@@ -170,29 +184,6 @@ p23_second_legend_pre <- tibble_plot23 %>%
   scale_fill_manual(values = vir_4, name = "Phylum (>2%)") + theme_cell
 p23_second_legend = ggdraw() + draw_plot(get_legend(p23_second_legend_pre))
 
-tibble_plot4 = func.stats.merged %>%
-  mutate(annotation = gsub('KO \\(', 'KO \\(KEGG Orthologs, ', annotation)) %>%
-  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG Orthologous\nGroups, ', annotation)) %>%
-  mutate(annotation = gsub('GF \\(', 'GC \\(Gene Clusters, ', annotation)) %>%
-  mutate(type = factor(type, levels = rev(unique(type))),
-         annotation = fct_relevel(annotation, relevel_func))
-
-p4_main <- ggplot(tibble_plot4, aes(x="Dummy",y=perc,fill=annotation)) +
-  geom_bar(stat = "identity",position = position_stack()) +
-  theme_minimal() +
-  theme_cell + 
-  facet_wrap(~type) + # removed ", strip.position = 'bottom'" as it doesn't align well in combined plots
-  scale_fill_manual(values=mag_5) +
-  ylab("Percentage of genes") +
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        axis.line = element_blank(),
-        panel.spacing.x = unit(0, "lines"),
-        panel.border = element_blank(),
-        panel.grid.major.x = element_blank(),
-        legend.position = 'None')
-
 p4_first_legend_pre <- tibble_plot4 %>%
   filter(type == "OG + GC") %>%
   ggplot(aes(type, fill = annotation)) + geom_bar() + 
@@ -205,31 +196,9 @@ p4_second_legend_pre <- tibble_plot4 %>%
   scale_fill_manual(values =  mag_5[c(1,5)], name = 'KO') + theme_cell
 p4_second_legend = ggdraw() + draw_plot(get_legend(p4_second_legend_pre))
 
-
-tibble_plot234 = rbind(rename(tibble_plot23, Legend = Taxon), rename(tibble_plot4, Legend = annotation)) %>%
-  mutate(type = factor(type, levels = c("Domain", "Phylum", "OG + GC", "KO")))
-
-p234_main <- ggplot(tibble_plot234, aes(x=type,y=perc,fill=Legend)) +
-  geom_bar(stat = "identity",position = position_stack()) +
-  theme_minimal() +
-  theme_cell +
-  scale_fill_manual(values=c(vir_6, vir_4, mag_5)) +
-  ylab("Percentage of genes") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank(),
-        axis.line.x = element_blank(),
-        panel.spacing.x = unit(0, "lines"),
-        panel.border = element_blank(),
-        panel.grid.major.x = element_blank(),
-        legend.position = 'None')
-
+# Get everything organised:
 figure_X2_B = p1 
-
 figure_X2_C = 
   (p234_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend) + 
      plot_layout(height = c(6, 4, 4, 2))) +
   plot_layout(widths = c(2, 4))
-
-# ggsave('../results/figures/Figure_X2_B_Catalog_accum.pdf', figure_X2_B)
-# ggsave('../results/figures/Figure_X2_C_Taxo_annot.pdf', figure_X2_C)

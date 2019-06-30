@@ -23,6 +23,7 @@ palette(sushi.palette(alpha=0.7)[c(2,3,4,1,14)])
 
 polar_col = "#136FBA"
 non_polar_col = "#F98B04"
+table_dest = '../results/tables/Table_numbers_for_bins_temp.tsv'
 
 # Load data ------------------------------------------------------------------------------
 
@@ -233,3 +234,15 @@ plot.with.inset <-
 plot.with.inset
 
 ggsave("../results/figures/Figure_X6_distance_partitioning.raw.pdf", plot.with.inset, height = 120, width = two_col, unit = col_unit)
+
+
+# Table to save results in main text -----------------------------------------------------
+
+res.epi.binned.med.simpl %>% 
+  ungroup() %>%
+  filter(Component != "interaction") %>%
+  summarize(Description = 'The width of a bin represents the max temp. diff. between two samples',
+            `Min temperature diff` = min(width),
+            `Median temperature diff` = median(width),
+            `Max temperature diff` = max(width)) %>%
+  write_tsv(table_dest)
