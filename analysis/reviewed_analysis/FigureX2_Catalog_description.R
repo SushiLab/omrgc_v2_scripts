@@ -17,7 +17,7 @@ source('reviewed_analysis/FigureX2BC_Description_catalog.R') # Load figures 2B &
 
 # Build and save the figure --------------------------------------------------------------
 
-figure_X2 = wrap_plots(figure_X2_A, figure_X2_B, figure_X2_C, widths = c(1, 2, 3))
+figure_X2 = wrap_plots(figure_X2_A, figure_X2_B, figure_X2_C, widths = c(1.2, 2, 3.1))
 
-ggsave(filename = '../results/figures/Figure_X2_Catalog_description.raw.pdf', plot_to_save, width = two_col, height = 90, units = col_unit)
+ggsave(filename = '../results/figures/Figure_X2_Catalog_description.raw.pdf', figure_X2, width = two_col, height = 90, units = col_unit)
 

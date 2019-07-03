@@ -33,22 +33,28 @@ relevel_domain = c("No annotation (27.48 %)",
                    "Bacteria (59.26 %)")
 relevel_phylum = "No annotation (52.06 %)" # extracted from the plot
 relevel_func = c("No annotation (76.41 %)","No annotation (17.26 %)",
-                 "GC (Gene Clusters, 21.8 %)", "OG (eggNOG Orthologous\nGroups, 60.94 %)",
-                 "KO (KEGG Orthologs, 23.59 %)")
+                 "GC (Gene Clusters, 21.8 %)", "OG (eggNOG 60.94 %)",
+                 "KO (KEGG 23.59 %)")
 pal<-sushi.palette()
-ggplot() + geom_point(aes(x=1:15,y=1:15,col=as.character(1:15)),size=5)+
+ggplot() + geom_point(aes(x=1:15,y=1:15,col=as.factor(1:15)),size=5)+
   scale_color_manual(values=pal)+theme_bw()+theme(legend.position = 'none')
 vir_init = viridis(n = 10, direction = -1)
-vir_init = c(DescTools::ColToGrey(vir_init[1]), vir_init[-1])
+init_grey = DescTools::ColToGrey(vir_init[1])
+vir_init = c(init_grey, vir_init[-1])
 vir_6 = vir_init[c(1:5, 8)]
-pal_6 = sushi.palette()[c(5,7,8,13,14,15)]
+pal_6 = pal[c(14, 4, 5, 3, 2, 1)]
+# colors from 2015 paper c('#D9D9D9', '#CDE5C4', '#F9CDE0', '#BEBBDB', '#FAF7B5', '#4CB049')
+# get darker for the pale ones
+col_6 = c('#D9D9D9', '#c7f2b7', '#F9CDE0', '#BEBBDB', '#FAF7B5', '#4CB049')
 vir_4 = vir_init[c(6,7,9,10)]
-pal_4 = sushi.palette()[c(10,11,12,1)]
-mag_init = viridis(n = 4, direction = -1, option = "magma",
-                   begin = .2, end = .8)
-mag_5 = c(rep(DescTools::ColToGrey(vir_init[1]), 2), mag_init[-1])
+pal_4 = pal[c(1, 2, 3, 4)]
+mag_init = viridis(n = 4, direction = -1, option = "magma", begin = .2, end = .8)
+mag_5 = c(rep(init_grey, 2), mag_init[-1])
+pal_5 = pal[c(14, 14, 1, 3, 2)]
+col_5 = c('#D9D9D9', '#D9D9D9', pal[9], pal[2], pal[1])
 polar_col = "#136FBA"
 non_polar_col = "#F98B04"
+
 
 # Load data ------------------------------------------------------------------------------
 
@@ -83,15 +89,16 @@ func.stats.merged<-func.stats.merged %>% mutate(annotation=paste(annotation," ("
 
 # Taxo Domain level ####
 tax.stats.dom = tax.stats.dom.raw %>%
+  rename(Taxonomy = Domain) %>%
   rbind(c("LUCA", round(prop_luca*sum(tax.stats.dom.raw$n)))) %>% # Add LUCA
   mutate(n = as.numeric(n),
-         type = "Domain",
-         Domain = ifelse(Domain == "", "No annotation", Domain)) %>%
-  mutate(n = ifelse(Domain == "No annotation", n - round(prop_luca*sum(tax.stats.dom.raw$n)), n)) %>% # Remove LUCA annotation from Unannotated
+         type = "Taxonomy",
+         Taxonomy = ifelse(Taxonomy == "", "No annotation", Taxonomy)) %>%
+  mutate(n = ifelse(Taxonomy == "No annotation", n - round(prop_luca*sum(tax.stats.dom.raw$n)), n)) %>% # Remove LUCA annotation from Unannotated
   mutate(perc = 100*n/sum(n)) %>% 
-  mutate(Domain = paste0(Domain, " (", round(perc,2), " %)"))
-assertthat::assert_that(all(relevel_domain %in% tax.stats.dom$Domain))
-tax.stats.dom = as_tibble(mutate(tax.stats.dom, Domain = fct_relevel(Domain, relevel_domain)))
+  mutate(Taxonomy = paste0(Taxonomy, " (", round(perc,2), " %)"))
+assertthat::assert_that(all(relevel_domain %in% tax.stats.dom$Taxonomy))
+tax.stats.dom = as_tibble(mutate(tax.stats.dom, Taxonomy = fct_relevel(Taxonomy, relevel_domain)))
 
 # Taxo Phylum/Class level ####
 tax.stats.class = tax.stats.class.raw %>%
@@ -121,84 +128,96 @@ tax.stats.phyl = filter(tax.stats.phyl, Phylum != relevel_phylum) # For new plot
 dades = dades.raw %>%
   mutate(sample.num = 1:nrow(dades.raw)) %>%
   cbind(env.mat) %>%
-  mutate(polar = ifelse(abs(Latitude) >= polarity, "polar", "non polar"))
+  mutate(polar = ifelse(abs(Latitude) >= polarity, "Polar", "Non-polar"))
 
 # Format tables for plots
-tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Domain),
+tibble_plot23 = rbind(dplyr::rename(tax.stats.dom, Taxon = Taxonomy),
                       dplyr::rename(tax.stats.phyl, Taxon = Phylum))
 
 tibble_plot4 = func.stats.merged %>%
-  mutate(annotation = gsub('KO \\(', 'KO \\(KEGG Orthologs, ', annotation)) %>%
-  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG Orthologous\nGroups, ', annotation)) %>%
+  mutate(annotation = gsub('KO \\(', 'KO \\(KEGG ', annotation)) %>%
+  mutate(annotation = gsub('NOG \\(', 'OG \\(eggNOG ', annotation)) %>%
   mutate(annotation = gsub('GF \\(', 'GC \\(Gene Clusters, ', annotation)) %>%
   mutate(type = factor(type, levels = rev(unique(type))),
          annotation = fct_relevel(annotation, relevel_func))
 
 tibble_plot234 = rbind(rename(tibble_plot23, Legend = Taxon), rename(tibble_plot4, Legend = annotation)) %>%
-  mutate(type = factor(type, levels = c("Domain", "Phylum", "OG + GC", "KO")))
+  mutate(type = factor(type, levels = c("Taxonomy", "Phylum", "OG + GC", "KO"))) %>%
+  filter(type != 'Phylum') # Remove phylum
 
 # Generate plot --------------------------------------------------------------------------
 
 p1<-ggplot(dades,aes(x=sample.num,y=n.genes,col=polar)) +
   geom_point(size = 2*size_converter) +
-  scale_color_manual(values=c(non_polar_col,polar_col)) +
+  scale_color_manual(values=c(non_polar_col,polar_col), guide = guide_legend(label.position = 'left')) +
   xlab("Prokaryote-enriched samples") +
-  ylab("Number of genes") +
-  ylim(0,50000000) +
+  ylab(expression(paste('Number of genes (',10^{6},')'))) +
   geom_vline(xintercept = 139.5, linetype = 2, size = .5*size_converter) +
-  annotate("segment", x = 40, xend = 180,y = 47000000, yend = 47000000,
+  annotate("segment", x = 70, xend = 180,y = 47000000, yend = 47000000,
            arrow = arrow(type = 'closed', angle = 20, length = unit(7, 'pt')), size = .75*size_converter) +
-  annotate("text", x = 20, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold', size = 6*size_converter) +
+  annotate("text", x = 35, y = 47000000, label = "OM-RGC.v2\n(47M genes)", fontface = 'bold', size = 7*size_converter) +
+  scale_y_continuous(limits = c(0,47000000), expand = expand_scale(mult = c(0, .05)),
+                     breaks = c(0, 10000000, 20000000, 30000000, 40000000, 47000000),
+                     labels = c('0', '10', '20', '30', '40', '47')) +
   theme_minimal() +
   theme_cell +
   theme(legend.position = c(0.3,0.2),
         legend.title = element_blank(),
-        axis.text.y = element_text(angle = 90),
-        axis.line = element_line(colour = 'black', size = 0.5*size_converter,
-                                 arrow = arrow(angle = 30, type = "open", length = unit(6, 'pt'))))
+        legend.background = element_rect(colour = 'black', fill = 'white', size = .5*size_converter),
+        axis.title.y = element_text(size = unit(9, 'pt')),
+        axis.line = element_line(colour = 'black', size = 0.5*size_converter))
+p1
 
 p234_main <- ggplot(tibble_plot234, aes(x=type,y=perc,fill=Legend)) +
   geom_bar(stat = "identity",position = position_stack()) +
   theme_minimal() +
   theme_cell +
-  scale_fill_manual(values=c(vir_6, vir_4, mag_5)) +
+  #scale_fill_manual(values=c(pal_6, pal_4, pal_5)) +
+  scale_fill_manual(values=c(col_6, col_5)) +
+  scale_y_continuous(limits = c(0, 100), expand = expand_scale(mult = c(0, .05))) +
   ylab("Percentage of genes") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = unit(9, 'pt')),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
+        axis.title.y = element_text(size = unit(9, 'pt')),
         axis.line.x = element_blank(),
         panel.spacing.x = unit(0, "lines"),
         panel.border = element_blank(),
         panel.grid.major.x = element_blank(),
         legend.position = 'None')
+p234_main
+
 
 p23_first_legend_pre <- tibble_plot23 %>%
-  filter(Taxon %in% tax.stats.dom$Domain) %>%
+  filter(Taxon %in% tax.stats.dom$Taxonomy) %>%
   ggplot(aes("Dummy", fill = Taxon)) + geom_bar() + 
-  scale_fill_manual(values = vir_6, name = "Domain") + theme_cell
+  scale_fill_manual(values = col_6, name = "Taxonomy") + theme_cell
 p23_first_legend = ggdraw() + draw_plot(get_legend(p23_first_legend_pre))
 
 p23_second_legend_pre <- tibble_plot23 %>%
   filter(Taxon %in% tax.stats.phyl$Phylum) %>%
   ggplot(aes("Dummy", fill = Taxon)) + geom_bar() + 
-  scale_fill_manual(values = vir_4, name = "Phylum (>2%)") + theme_cell
+  scale_fill_manual(values = pal_4, name = "Phylum (>2%)") + theme_cell
 p23_second_legend = ggdraw() + draw_plot(get_legend(p23_second_legend_pre))
 
 p4_first_legend_pre <- tibble_plot4 %>%
   filter(type == "OG + GC") %>%
   ggplot(aes(type, fill = annotation)) + geom_bar() + 
-  scale_fill_manual(values = mag_5[2:4], name = 'OG + GC') + theme_cell
+  scale_fill_manual(values = col_5[2:4], name = 'OG + GC') + theme_cell
 p4_first_legend = ggdraw() + draw_plot(get_legend(p4_first_legend_pre)) # using cowplot
 
 p4_second_legend_pre <- tibble_plot4 %>%
   filter(type == "KO") %>%
   ggplot(aes(type, fill = annotation)) + geom_bar() + 
-  scale_fill_manual(values =  mag_5[c(1,5)], name = 'KO') + theme_cell
+  scale_fill_manual(values =  col_5[c(1,5)], name = 'KO') + theme_cell
 p4_second_legend = ggdraw() + draw_plot(get_legend(p4_second_legend_pre))
 
 # Get everything organised:
 figure_X2_B = p1 
 figure_X2_C = 
-  (p234_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend) + 
-     plot_layout(height = c(6, 4, 4, 2))) +
+  # (p234_main | (p23_first_legend / p23_second_legend / p4_first_legend / p4_second_legend) + 
+  #    plot_layout(height = c(6, 4, 4, 2))) +
+  (p234_main | (p23_first_legend / p4_first_legend / p4_second_legend / plot_spacer()) + 
+     plot_layout(height = c(6, 4, 3, 2))) +
   plot_layout(widths = c(2, 4))
+

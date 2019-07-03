@@ -119,37 +119,48 @@ tibble_violin_plot = res.epi.binned %>%
   filter(!duplicated(comparison_id_w_component)) %>%
   filter(polar %in% c("polar.polar","non polar.non polar")) %>%
   filter(Component != 'interaction') %>%
-  mutate(polar = factor(polar, levels = c("polar.polar","non polar.non polar")),
+  mutate(polar = factor(polar, levels = c("polar.polar","non polar.non polar"),
+                        labels = c('Polar', 'Non-polar')),
          Component = factor(Component, labels = c('Turnover', 'Acclimatization')))
 
 assertthat::assert_that(nrow(tibble_violin_plot) < 2*length(unique(res.epi.binned$comparison_id)),
                         msg = 'Should have less than twice the number of comparison as you remove interaction and non homogeneous comparisons.')
 
-t.test(filter(tibble_violin_plot, Component == 'Abundance' & polar == 'polar.polar')$value,
-       filter(tibble_violin_plot, Component == 'Abundance' & polar == 'non polar.non polar')$value)
-t.test(filter(tibble_violin_plot, Component == 'Expression' & polar == 'polar.polar')$value,
-       filter(tibble_violin_plot, Component == 'Expression' & polar == 'non polar.non polar')$value)
+t.test(filter(tibble_violin_plot, Component == 'Turnover' & polar == 'Polar')$value,
+       filter(tibble_violin_plot, Component == 'Turnover' & polar == 'Non-polar')$value)
+wilcox.test(filter(tibble_violin_plot, Component == 'Turnover' & polar == 'Polar')$value,
+            filter(tibble_violin_plot, Component == 'Turnover' & polar == 'Non-polar')$value)
+t.test(filter(tibble_violin_plot, Component == 'Acclimatization' & polar == 'Polar')$value,
+       filter(tibble_violin_plot, Component == 'Acclimatization' & polar == 'Non-polar')$value)
+wilcox.test(filter(tibble_violin_plot, Component == 'Acclimatization' & polar == 'Polar')$value,
+            filter(tibble_violin_plot, Component == 'Acclimatization' & polar == 'Non-polar')$value)
 
 # Also check for interaction
 t.test(filter(res.epi.binned, !duplicated(comparison_id_w_component) & Component == 'interaction' & polar == 'polar.polar')$value,
        filter(res.epi.binned, !duplicated(comparison_id_w_component) & Component == 'interaction' & polar == 'non polar.non polar')$value)
 
 p_violin = ggplot(tibble_violin_plot) +
-  geom_violin(aes(x='Dummy',y=value,fill=polar),
-              scale='width',draw_quantiles = c(0.5)) +
-  annotate("segment", x = .75, xend = 1.25, y = 6, yend = 6, size = 1*size_converter) +
-  annotate("text", label = '***', x = 1, y = 6.1, size = 7*size_converter) +
+  geom_violin(aes(x=polar,y=value,fill=polar),
+              scale='width',draw_quantiles = c(0.5), size = .5*size_converter) +
+  annotate("segment", x = 1, xend = 2, y = 6, yend = 6, size = .5*size_converter) +
+  annotate("text", label = '***', x = 1.5, y = 6.05, size = 7*size_converter) +
+  ylim(0,6.1) +
   scale_fill_manual(values = c(polar_col, non_polar_col)) +
   facet_wrap(~Component) +
   ylab('Distances') +
-  ggtitle('Within polar vs within non-polar communities') +
   theme_bw() +
   theme_cell +
-  theme(plot.background = element_rect(colour = 'grey80', fill = 'white'),
+  theme(plot.background = element_rect(colour = 'black', fill = 'white', size = .5*size_converter),
+        panel.background = element_rect(size = .5*size_converter),
+        panel.border = element_rect(size = .5*size_converter),
+        strip.background = element_rect(size = .5*size_converter),
+        strip.text.x = element_text(size = unit(6, 'pt'), margin = margin(2, 2, 2, 2, unit = 'pt')),
         legend.position = 'None',
+        axis.title.y = element_text(size = unit(6, 'pt')),
         axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
+        axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1.3, size = unit(6, 'pt')),
+        axis.ticks.x = element_blank(),
+        plot.margin = margin(3, 3, 3, 3, unit = 'pt'))
 
 p_violin
 
@@ -170,15 +181,14 @@ wilcox_wrapper <- function(x, table = res.epi.binned.med){
 pval.df <- tibble(bin = unique(res.epi.binned.med$bin),
                   p.val = sapply(unique(res.epi.binned.med$bin), wilcox_wrapper))
 
-# FIXME: Wait.. why bonferroni + <0.01 ? Sounds very conservative. Replaced by fdr/0.05
+# FIXME: Wait.. why bonferroni + <0.01 ? Sounds very conservative. Replaced by Holm/0.05
 pval.df = pval.df %>%
-  mutate(p.val.fdr =  p.adjust(p.val, method = "fdr"),
-         p.val.holm =  p.adjust(p.val, method = "holm"),
+  mutate(p.val.holm =  p.adjust(p.val, method = "holm"),
          p.val.bonf =  p.adjust(p.val, method = "bonferroni")) %>%
-  mutate(sign = ifelse(p.val.fdr <= 0.05, "Significant (p < 0.05)", "Not Significant"))
+  mutate(sign = ifelse(p.val.holm <= 0.05, "Significant\n(p < 0.05)", "Not Significant"))
 
 res.epi.binned.med.simpl <- left_join(res.epi.binned.med, pval.df, by="bin") %>%
-  dplyr::select(bin, Component, mean, sd, median, q1, q3, Layer, median.temp, width, p.val, p.val.fdr, sign, polarity) %>%
+  dplyr::select(bin, Component, mean, sd, median, q1, q3, Layer, median.temp, width, p.val, p.val.holm, sign, polarity) %>%
   unique()
 
 # FIXME: Why would interactions always be significant ??
@@ -201,27 +211,31 @@ tibble_ratio_plot = res.epi.binned.med.simpl %>%
 
 # FIXME add color of the line/points based on % of polar samples.
 p_ratio<-ggplot(tibble_ratio_plot) +
-  geom_hline(yintercept = 1, linetype = 2, color = 'grey75', size = 1*size_converter) +
+  geom_hline(yintercept = 1, linetype = 2, color = 'grey75', size = .75*size_converter) +
   geom_point(aes(x = Bin_temperature, y = Ratio, shape = Significance, fill = Polarity),
-             size = 7*size_converter) +
+             size = 7*size_converter, stroke = .4*size_converter) +
   theme_minimal() +
-  ylab("Abundance-based distances / Expression-based distances") +
-  xlab("Median temperature of the bin [°C]") +
+  ylab("Abundance-based distance / Expression-based distance") +
+  xlab("Median temperature of the bin (°C)") +
   scale_shape_manual(values = c(21,23)) +
   scale_fill_gradient2(low = non_polar_col, high = polar_col, mid = 'lightgrey', midpoint = 0.5,
-                       breaks = c(0, 1), labels = c('All samples are non-polar', 'All samples are polar')) +
+                       breaks = c(0, 1), labels = c('All non-polar', 'All polar')) +
   labs(fill = 'Proportion of samples', shape = element_blank()) +
   theme_cell +
-  theme(legend.position = c(.95, .95), 
+  theme(legend.position = c(.95, 1), 
         legend.justification = c(1, 1), 
-        legend.box.background = element_rect(colour = NA, fill = "white"),
+        legend.key.height = unit(4, 'mm'),
+        legend.key.width = unit(6, 'mm'),
+        legend.box.background = element_rect(colour = "black", fill = "white", size = .4*size_converter),
         plot.margin = unit(c(1,2,1,1), 'lines'),
-        axis.line = element_line(colour = 'black', size = 0.5*size_converter,
-                                 arrow = arrow(angle = 30, type = "open", length = unit(6, 'pt')))) +
-  annotate("segment", x = 30, xend = 30, y = 1.05, yend = 1.4, arrow = arrow(type = 'closed', angle = 20, length = unit(8, 'pt'))) +
-  annotate("text", x = 30.75, y = 1.225, label = 'Organismal turnover dominates', angle = -90, size = 7*size_converter) +
-  annotate("segment", x = 30, xend = 30, y = .95, yend = .6, arrow = arrow(type = 'closed', angle = 20, length = unit(8, 'pt'))) +
-  annotate("text", x = 30.75, y = .775, label = 'Acclimatization dominates', angle = -90, size = 7*size_converter) +
+        axis.title = element_text(size = unit(7, 'pt')),
+        axis.line = element_line(colour = 'black', size = 0.5*size_converter)) +
+  annotate("segment", x = 30, xend = 30, y = 1.05, yend = 1.4, arrow = arrow(type = 'closed', angle = 20, length = unit(7, 'pt'))) +
+  annotate("text", x = 31.75, y = 1.225, label = 'Turnover', angle = -90, size = 8*size_converter, ) +
+  annotate("text", x = 30.75, y = 1.225, label = 'dominates', angle = -90, size = 8*size_converter, ) +
+  annotate("segment", x = 30, xend = 30, y = .95, yend = .6, arrow = arrow(type = 'closed', angle = 20, length = unit(7, 'pt'))) +
+  annotate("text", x = 31.75, y = .775, label = 'Acclimatization', angle = -90, size = 8*size_converter) +
+  annotate("text", x = 30.75, y = .775, label = 'dominates', angle = -90, size = 8*size_converter) +
   coord_cartesian(xlim = c(0, 28), clip = 'off')
 
 p_ratio
@@ -229,11 +243,11 @@ p_ratio
 plot.with.inset <-
   ggdraw() +
   draw_plot(p_ratio) +
-  draw_plot(p_violin, x = .1, y = .12, width = .35, height = .4)
+  draw_plot(p_violin, x = .13, y = .13, width = .35, height = .45)
 
 plot.with.inset
 
-ggsave("../results/figures/Figure_X6_distance_partitioning.raw.pdf", plot.with.inset, height = 120, width = two_col, unit = col_unit)
+ggsave("../results/figures/Figure_X6_distance_partitioning.raw.pdf", plot.with.inset, height = 90, width = one_half_col, unit = col_unit)
 
 
 # Table to save results in main text -----------------------------------------------------

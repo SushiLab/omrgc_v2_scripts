@@ -126,10 +126,11 @@ p_map = ggplot() +
                    show.legend = TRUE) +
   coord_fixed(ratio = 1, clip = 'off') +
   # remove the default background, gridlines & default gray color around legend's symbols
-  theme_void() +
+  theme_bw() +
   scale_fill_manual(values=color_pal, name = 'Data type') +
   theme(legend.position = c(.7, .2),
-        plot.margin = unit(c(0,4.5,0,1), 'lines'),
+        plot.margin = unit(c(0, 3.5, 0, 0), 'lines'),
+        plot.background = element_rect(margin = margin(c(0, 0, 0, 0))),
         legend.background = element_rect(colour = 'black', fill = 'white', size = .75*size_converter),
         legend.key.size = unit(6, "pt"),
         legend.text = element_text(size = unit(6, 'pt')),
@@ -169,9 +170,9 @@ p_polar <- ggplot() +
   theme_void()
 p_polar
 
-lon_min = quantile(NE_box.prj@bbox['x','min']:NE_box.prj@bbox['x','max'], .7)
-lon_max = 2*NE_box.prj@bbox['x','max'] - lon_min
-lat_min = quantile(NE_box.prj@bbox['y','min']:NE_box.prj@bbox['y','max'], .3)
+lon_min = quantile(NE_box.prj@bbox['x','min']:NE_box.prj@bbox['x','max'], .6)
+lon_max = 2*NE_box.prj@bbox['x','max'] - 4/3*lon_min
+lat_min = quantile(NE_box.prj@bbox['y','min']:NE_box.prj@bbox['y','max'], .4)
 
 map.with.inset =
   p_map + 
@@ -182,7 +183,7 @@ map.with.inset =
 
 map.with.inset
 
-ggsave("../results/figures/Figure_X1_Maps.raw.pdf", map.with.inset, width = two_col, height = 100, units=col_unit)
+ggsave("../results/figures/Figure_X1_Maps.raw.pdf", map.with.inset, width = two_col, height = 150, units=col_unit)
 
 # Table of stations
 numbers = as_tibble(table(sequenced))  %>%

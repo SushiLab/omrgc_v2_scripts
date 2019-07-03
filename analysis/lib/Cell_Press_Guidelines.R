@@ -24,21 +24,22 @@ size_converter = 0.352777778
 # Define a general theme function
 # Basically, take the theme_bw and divide everything by two
 # Remove things pertaining to color, etc
+base_size = 8
 theme_cell <- theme(
     axis.line = element_blank(),
     axis.text = element_text(margin = unit(0.2, "lines")),
-    axis.text.x = element_text(size = unit(7 * 0.85, 'pt'), lineheight = 0.7, vjust = .5),
-    axis.text.y = element_text(size = 7 * 0.85, lineheight = 0.7, hjust = .5),
+    axis.text.x = element_text(size = unit(base_size * 0.85, 'pt'), lineheight = 0.7, vjust = .5),
+    axis.text.y = element_text(size = base_size * 0.85, lineheight = 0.7, hjust = .5),
     axis.ticks = element_line(size = 0.2),
-    axis.title.x = element_text(size = 7, vjust = .5),
-    axis.title.y = element_text(size = 7, angle = 90, vjust = 0.25),
+    axis.title.x = element_text(size = base_size, vjust = .5),
+    axis.title.y = element_text(size = base_size, angle = 90, vjust = 0.25),
     axis.ticks.length = unit(0.15, "lines"),
     # axis.title = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     # axis.text = element_text(size = unit(5, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     
     legend.key.size = unit(.5, "lines"),
-    legend.text = element_text(size = 7 * 0.85, margin = margin(0, 0, 0, 2, unit = 'pt')),
-    legend.title = element_text(size = 7 * 0.9, face = "bold", hjust = 0,
+    legend.text = element_text(size = base_size * 0.85, margin = margin(0, 0, 0, 2, unit = 'pt')),
+    legend.title = element_text(size = base_size * 0.9, face = "bold", hjust = 0,
                                 margin = margin(0, 0, 2, 0, unit = 'pt')),
     legend.position = "right",
     # legend.text = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
@@ -55,13 +56,13 @@ theme_cell <- theme(
     panel.grid.minor = element_line(size = 0.3*size_converter),
     panel.spacing = unit(0.1, "lines"),
     
-    strip.text.x = element_text(size = 7 * 0.85),
-    strip.text.y = element_text(size = 7 * 0.85, angle = -90),
+    strip.text.x = element_text(size = base_size * 0.85),
+    strip.text.y = element_text(size = base_size * 0.85, angle = -90),
     # strip.text = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     
-    plot.title = element_text(size = 7),
+    plot.title = element_text(size = base_size),
     plot.margin = unit(c(.5, .5, 0.25, 0.25), "lines")
-    # plot.title = element_text(size = unit(7, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
+    # plot.title = element_text(size = unit(base_size, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     # plot.subtitle = element_text(size = unit(6, 'pt'), margin = margin(0, 0, 0, 0, unit = 'pt')),
     #plot.margin = margin(0, 0, 0, 0, unit = 'pt')
   )

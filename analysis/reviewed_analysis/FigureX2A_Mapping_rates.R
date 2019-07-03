@@ -19,7 +19,7 @@ coding_perc = 87 # The average perc. of a genome that actually codes. Extracted 
 # Matched metaG/metaT samples
 matched_samples = readxl::read_xlsx("../results/paper_tables/submission/Table_S1.xlsx", sheet = "Table_W6")
 table_dest = '../results/tables/Table_numbers_for_mapping_rates.tsv'
-col_datasets = c("#D99233", "#4199DD")# MetaG, MetaT
+col_datasets = c("#EAAD52", "#35CCFF")# metag/metat from map #c("#D99233", "#4199DD")# MetaG, MetaT from boundary analysis
 vir_cols = viridis::viridis(2, begin = .2, end =.9)
 vir_grey = c(DescTools::ColToGrey(vir_cols[length(vir_cols)]), vir_cols[1]) # Last color as greyscale
 gut_mapping = tribble(
@@ -74,27 +74,32 @@ print(assertthat::see_if(nrow(Formatted_table) == 2*nrow(matched_samples),
 
 Plot_table = Formatted_table %>%
   gather(key = 'data', value = 'aligned_perc' , -c(Dataset, Sample, PANGAEA_ID)) %>%
-  mutate(data = factor(data, levels = c('MarRef\n(Ref. Genomes)',
+  mutate(data = factor(data,
+                       levels = c('MarRef\n(Ref. Genomes)',
                                         'Delmont et al. 2018\n(MAGs)',
-                                        'This study\n(Gene Catalog)')))
+                                        'This study\n(Gene Catalog)'),
+                       labels = c("MarRef", "MAGs", "OMRGC.v2")))
 
 # plot -----------------------------------------------------------------------------------
 
 figure_X2_A = ggplot(Plot_table) +
-  geom_boxplot(aes(x = data, y = aligned_perc, fill = Dataset, colour = Dataset),
-               alpha = .7, size = 0.75*size_converter, outlier.size = 2*size_converter) +
+  geom_boxplot(aes(x = data, y = aligned_perc, fill = Dataset),
+               size = 0.75*size_converter, outlier.size = 2*size_converter) +
   theme_minimal() +
   theme_cell +
-  ylim(0, 100) +
-  ylab('Average percentage of reads aligned (%)') +
-  scale_fill_manual(values = col_datasets) +
-  scale_colour_manual(values = col_datasets) +
-  theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
-        legend.position = c(1, 1), 
+  ylab('Percentage of reads aligned (%)') +
+  scale_fill_manual(values = col_datasets, guide = guide_legend(label.position = 'left')) +
+  scale_y_continuous(limits = c(0, 100), expand = expand_scale(mult = c(0, .05))) +
+  theme(legend.title = element_blank(),
+        legend.position = c(1, 1),
         legend.justification = c(1, 1),
-        axis.text.x = element_text(angle = 35, hjust = 1, vjust = 1),
-        axis.ticks = element_blank())
+        legend.text = element_text(size = unit(6, 'pt')),
+        legend.background = element_rect(colour = 'black', size = 0.5*size_converter),
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(angle = 35, hjust = 1, vjust = 1, size = unit(9, 'pt')),
+        axis.title.y = element_text(size = unit(9, 'pt')),
+        axis.line.y = element_line(colour = 'black', size = 0.5*size_converter),
+        axis.line.x = element_line(colour = 'black', size = 0.5*size_converter))
 
 figure_X2_A
 
