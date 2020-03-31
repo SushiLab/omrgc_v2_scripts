@@ -13,6 +13,3 @@ The data used for the production of figures is not synchronized here but can be 
 * [**analysis**](https://github.com/SushiLab/omrgc_v2_scripts/tree/master/analysis): Folder containing the scripts and external resources to produce data, tables and figures. 
 	- **lib**: Contains some R functions and external resources used by the scripts.
 	- **scripts\_for_figures**: Scripts to produce the tables and figures of the paper.
-
-*Some tidying up is still happening. More scripts will exist in the near future.*
-
