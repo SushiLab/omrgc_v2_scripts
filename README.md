@@ -8,7 +8,7 @@ This repository is associated with the paper [Salazar *et al.* (2019). **Gene ex
 
 ## Scripts
 
-The data used for the production of figures is not synchronized here but can be downloaded with `analysis/Download_data.sh`.
+The data used for the production of figures is not synchronized here but can be downloaded with `sh analysis/Download_data.sh`.
 
 * [**analysis**](https://github.com/SushiLab/omrgc_v2_scripts/tree/master/analysis): Folder containing the scripts and external resources to produce data, tables and figures. 
 	- **lib**: Contains some R functions and external resources used by the scripts.
