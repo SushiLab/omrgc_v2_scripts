@@ -1,5 +1,7 @@
 # OM-RGC v2
-This repository is associated with the paper [Salazar *et al.* (2019). **Gene expression changes and community turnover differentially shape the global ocean metatranscriptome**. Cell](https://doi.org/10.1016/j.cell.2019.10.014).
+
+> [Salazar et al., **Gene expression changes and community turnover differentially shape the global ocean metatranscriptome**, *Cell*, 2019](https://doi.org/10.1016/j.cell.2019.10.014)
+
 
 ## Data
 
@@ -8,8 +10,14 @@ This repository is associated with the paper [Salazar *et al.* (2019). **Gene ex
 
 ## Scripts
 
-The data used for the production of figures is not synchronized here but can be downloaded with `sh analysis/Download_data.sh`.
+The data used for the production of figures is not synchronized here but can be downloaded with:
 
-* [**analysis**](https://github.com/SushiLab/omrgc_v2_scripts/tree/master/analysis): Folder containing the scripts and external resources to produce data, tables and figures. 
+```bash
+git clone https://github.com/SushiLab/omrgc_v2_scripts
+cd omrgc_v2_scripts/analysis/
+sh Download_data.sh
+```
+
+* **analysis**: Folder containing the scripts and external resources to produce data, tables and figures. 
 	- **lib**: Contains some R functions and external resources used by the scripts.
 	- **scripts\_for_figures**: Scripts to produce the tables and figures of the paper.
