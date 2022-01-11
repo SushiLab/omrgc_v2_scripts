@@ -3,10 +3,10 @@ mkdir ../data
 cd ../data
 
 # Download released data
-wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/u/_README
-wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/u/OM-RGC_v2_functional_profile_eggNOG.tar.gz
-wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/u/OM-RGC_v2_functional_profile_KEGG.tar.gz
-wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/u/OM-RGC_v2_taxonomic_profiles.tar.gz
+wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/Files/_README
+wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/Files/OM-RGC_v2_functional_profile_eggNOG.tar.gz
+wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/Files/OM-RGC_v2_functional_profile_KEGG.tar.gz
+wget https://www.ebi.ac.uk/biostudies/files/S-BSST297/Files/OM-RGC_v2_taxonomic_profiles.tar.gz
 
 # Uncompress data and remove compressed files
 tar xvzf OM-RGC_v2_functional_profile_eggNOG.tar.gz
